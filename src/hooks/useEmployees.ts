@@ -50,7 +50,7 @@ interface EmployeeFormData {
   email: string;
   department: string;
   // position: string;
-  dateOfBirth: string;
+  dob: string;
   // joinDate: string;
   // phone: string;
 }
@@ -61,7 +61,7 @@ export const useEmployeeForm = (employee: Employee | null = null) => {
     email: '',
     department: '',
   
-    dateOfBirth: '',
+    dob: '',
     // joinDate: '',
     // phone: '',
   };
@@ -72,20 +72,40 @@ export const useEmployeeForm = (employee: Employee | null = null) => {
   //   if (employee) setFormData({ ...employee });
   //   else setFormData(initialFormData);
   // }, [employee]);
-  useEffect(() => {
-  if (!employee) {
-    setFormData(initialFormData);
-    return;
-  }
+//   useEffect(() => {
+//   if (!employee) {
+//     setFormData(initialFormData);
+//     return;
+//   }
 
-  setFormData({
-    name: employee.name ?? '',
-    email: employee.email ?? '',
-    department: employee.department ?? '',
+//   setFormData({
+//     name: employee.name ?? '',
+//     email: employee.email ?? '',
+//     department: employee.department ?? '',
 
-    dateOfBirth: employee.dateOfBirth ?? '',
-  });
-}, [employee]);
+//     dob: employee.dob ?? '',
+//   });
+// }, [employee]);
+
+ useEffect(() => {
+    if (employee) {
+      setFormData({
+        name: employee.name ?? "",
+        email: employee.email ?? "",
+        department: employee.department ?? "",
+        dob: employee.dob
+          ? new Date(employee.dob).toISOString().split("T")[0]
+          : "",
+      });
+    } else {
+      setFormData({
+        name: "",
+        email: "",
+        department: "",
+        dob: "",
+      });
+    }
+  }, [employee]);
 
 
   const handleChange = useCallback((field: keyof EmployeeFormData, value: string) => {

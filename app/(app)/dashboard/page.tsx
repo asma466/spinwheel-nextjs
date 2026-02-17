@@ -1,20 +1,25 @@
 'use client';
-import { Users, Cake, Gift, CheckCircle, Mail, Clock } from 'lucide-react';
+import { Users, Cake, Gift, CheckCircle, Mail, Clock, LoaderPinwheel, Loader } from 'lucide-react';
 import { DashboardLayout } from '@/src/component/Layout/DashboardLayout';
 import { StatCard } from '@/src/component/common/StatCard';
 import { PageHeader } from '@/src/component/common/PageHeader';
 import { StatusBadge } from '@/src/component/common/StatusBadge';
 import { mockEmployees, mockBirthdayRecords, mockGifts } from '@/src/mockdata/mockdata';
 import { format } from 'date-fns';
+import { useDashboardStats } from '@/src/hooks/useDashboard';
 
 export default function Dashboard() {
+  const {data , isLoading } = useDashboardStats()
+ if (isLoading) {
+  return <Loader className="w-10 h-10 text-primary animate-spin" />
+ }
   const today = new Date();
   const todayStr = format(today, 'MM-dd');
   
-  const todayBirthdays = mockEmployees.filter(emp => {
-    const empBday = emp.dateOfBirth.slice(5);
-    return empBday === todayStr;
-  });
+  // const todayBirthdays = mockEmployees.filter(emp => {
+  //   const empBday = emp.dob.slice(5);
+  //   return empBday === todayStr;
+  // });
 
   const pendingEmails = mockBirthdayRecords.filter(r => !r.emailSent && r.year === today.getFullYear()).length;
   const completedSpins = mockBirthdayRecords.filter(r => r.spinCompleted).length;
@@ -31,26 +36,26 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
           title="Total Employees"
-          value={mockEmployees.length}
+          value={data?.totalEmployees ?? 0}
           icon={Users}
           variant="primary"
         />
         <StatCard
           title="Today's Birthdays"
-          value={todayBirthdays.length}
+          value={data?.todayBirthdays?.length ?? 0}
           icon={Cake}
           variant="success"
         />
         <StatCard
           title="Pending Emails"
-          value={pendingEmails}
+          value={data?.pendingEmails ?? 0}
           icon={Mail}
           variant="warning"
         />
         <StatCard
           title="Available Gifts"
-          value={availableGifts}
-          subtitle={`of ${mockGifts.length} total`}
+          value={data?.availableGifts ?? 0}
+          subtitle={`of ${data?.totalGifts ?? 0} total`}
           icon={Gift}
           variant="default"
         />
@@ -67,16 +72,16 @@ export default function Dashboard() {
             <h3 className="font-semibold text-foreground">Today's Birthday Celebrants</h3>
           </div>
           
-          {todayBirthdays.length > 0 ? (
+          {data?.todayBirthdays?.length > 0 ? (
             <div className="space-y-3">
-              {todayBirthdays.map((emp) => {
+              {data.todayBirthdays.map((emp:any) => {
                 const record = mockBirthdayRecords.find(r => r.employeeId === emp.id && r.year === today.getFullYear());
                 return (
                   <div key={emp.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                         <span className="text-sm font-medium text-primary">
-                          {emp.name.split(' ').map(n => n[0]).join('')}
+                          {emp.name.split(' ').map((n: string) => n[0]).join('')}
                         </span>
                       </div>
                       <div>
@@ -113,7 +118,7 @@ export default function Dashboard() {
           </div>
           
           <div className="space-y-3">
-            {mockBirthdayRecords.filter(r => r.giftReceived).slice(0, 5).map((record) => (
+            {data?.recentGiftActivity?.filter((r: any) => r.giftReceived).slice(0, 5).map((record: any) => (
               <div key={record.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">

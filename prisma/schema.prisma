@@ -14,33 +14,55 @@ model Employee {
   email        String    @unique
   dob          DateTime @default(now())
   department   String
-  createdAt    DateTime  @default(now())
-  spins        SpinHistory[]
+  createdAt    DateTime  
+  // spins        SpinHistory[]
+  birthdayRecords BirthdayRecord[]
 }
 
 model Gift {
   id        Int      @id @default(autoincrement())
   name      String
   available Boolean  @default(true)
-  spins     SpinHistory[]
+  birthdayRecords  BirthdayRecord[]
 }
 
-model SpinHistory {
-  id          Int       @id @default(autoincrement())
-  employeeId  Int
-  giftId      Int
-  year        Int
-  createdAt   DateTime  @default(now())
+// model SpinHistory {
+//   id          Int       @id @default(autoincrement())
+//   employeeId  Int
+//   giftId      Int
+//   year        Int
+//   createdAt   DateTime  @default(now())
 
-  employee    Employee  @relation(fields: [employeeId], references: [id])
-  gift        Gift      @relation(fields: [giftId], references: [id])
+//   employee    Employee  @relation(fields: [employeeId], references: [id])
+//   gift        Gift      @relation(fields: [giftId], references: [id])
 
-  @@unique([employeeId, year])
-}
+//   @@unique([employeeId, year])
+// }
 
 model User {
   id       Int    @id @default(autoincrement())
   email    String @unique
   password String
   role     String @default("HR")
+}
+
+model BirthdayRecord {
+  id              Int       @id @default(autoincrement())
+  year            Int
+  emailSent       Boolean   @default(false)
+  spinCompleted   Boolean   @default(false)
+
+  // Relations
+  employeeId      Int
+  employee        Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  giftReceivedId  Int?
+  giftReceived    Gift?     @relation(fields: [giftReceivedId], references: [id])
+
+  giftReceivedAt  DateTime?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([employeeId, year]) // One record per employee per year
 }

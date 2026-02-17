@@ -78,8 +78,8 @@ export async function POST(req: Request) {
     const body = await req.json();
     console.log("EMPLOYEE BODY:", body);
 
-    const { name, email, dob, dateOfBirth, department } = body;
-    const finalDob = dob ?? dateOfBirth;
+    const { name, email, dob, department } = body;
+    const finalDob = dob;
 
     if (![name, email, finalDob, department].every(Boolean)) {
       return NextResponse.json(
@@ -112,7 +112,8 @@ export async function POST(req: Request) {
         name: name.trim(),
         email: email.toLowerCase().trim(),
         department: department.trim(),
-        dob: parsedDob,
+        // dob: parsedDob,
+        dob: body.dob ? new Date(body.dob) : undefined, // ✅ same fix
       },
     });
 
@@ -145,9 +146,9 @@ export async function GET(req: Request) {
       prisma.employee.findMany({
         where: {
           OR: [
-            { name: { contains: search, mode: "insensitive" } },
-            { email: { contains: search, mode: "insensitive" } },
-            { department: { contains: search, mode: "insensitive" } },
+            { name: { contains: search } },
+            { email: { contains: search } },
+            { department: { contains: search } },
           ],
         },
         orderBy: { createdAt: "desc" },
@@ -166,9 +167,9 @@ export async function GET(req: Request) {
       prisma.employee.count({
         where: {
           OR: [
-            { name: { contains: search, mode: "insensitive" } },
-            { email: { contains: search, mode: "insensitive" } },
-            { department: { contains: search, mode: "insensitive" } },
+            { name: { contains: search } },
+            { email: { contains: search } },
+            { department: { contains: search } },
           ],
         },
       }),
@@ -190,9 +191,12 @@ export async function GET(req: Request) {
   } catch (error) {
     console.error("GET EMPLOYEES ERROR:", error);
     return NextResponse.json(
-      { message: "Internal server error" },
+      // { message: "Internal server error" },
+        { error: String(error) }, // 👈 show actual error
       { status: 500 }
     );
   }
 }
+
+
 

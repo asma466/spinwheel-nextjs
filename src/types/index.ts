@@ -4,7 +4,8 @@ export interface Employee {
   email: string;
   department: string;
   // position: string;
-  dateOfBirth: string;
+  // dateOfBirth: string;
+  dob: string;
   // joinDate: string;
   // phone: string;
   avatar?: string;

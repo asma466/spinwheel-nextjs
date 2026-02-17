@@ -1,10 +1,8 @@
-'use client';
+"use client";
 
-
-import { ReactNode, useState } from 'react';
-import { Header } from './Header';
-import { Sidebar } from './Sidebar';
-
+import { ReactNode, useState } from "react";
+import { Header } from "./Header";
+import { Sidebar } from "./Sidebar";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -15,9 +13,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+      />
       <div className="flex-1 flex flex-col min-h-screen">
-        <Header onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
+        <Header
+          onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
         <main className="flex-1 dashboard-content animate-fade-in">
           {children}
         </main>

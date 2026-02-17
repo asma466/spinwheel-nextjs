@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ReactQueryProvider from "@/src/component/provider/QueryProvider";
+import { Toaster } from "sonner";
 
 // import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -35,6 +36,8 @@ export default function RootLayout({
       >
         <ReactQueryProvider>
           {children}
+
+          <Toaster richColors position="top-right" />
         </ReactQueryProvider>
        
       </body>
