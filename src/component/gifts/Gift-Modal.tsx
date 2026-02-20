@@ -30,7 +30,7 @@ interface GiftModalProps {
 
 const initialFormData = {
   name: '',
-  description: '',
+  quantity: 1,
   category: '',
   available: true,
 };
@@ -44,7 +44,7 @@ export function GiftModal({ open, onOpenChange, gift, onSave, categories }: Gift
     if (gift) {
       setFormData({
         name: gift.name,
-        description: gift.description,
+        quantity: gift.quantity,
         category: gift.category,
         available: gift.available,
       });
@@ -64,8 +64,13 @@ export function GiftModal({ open, onOpenChange, gift, onSave, categories }: Gift
     });
   };
 
-  const handleChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleChange = (field: string, value: string | number | boolean) => {
+    if (field === 'quantity') {
+      const numValue = typeof value === 'string' ? parseInt(value) || 0 : typeof value === 'number' ? value : 0;
+      setFormData(prev => ({ ...prev, [field]: numValue }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
   };
 
   return (
@@ -90,13 +95,14 @@ export function GiftModal({ open, onOpenChange, gift, onSave, categories }: Gift
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleChange('description', e.target.value)}
-              placeholder="$50 Amazon Gift Card for online shopping"
-              rows={3}
+            <Label htmlFor="quantity">Quantity Available</Label>
+            <Input
+              id="quantity"
+              type="number"
+              min="0"
+              value={formData.quantity || 0}
+              onChange={(e) => handleChange('quantity', e.target.value)}
+              placeholder="Enter quantity"
               required
             />
           </div>

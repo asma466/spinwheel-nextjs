@@ -114,6 +114,7 @@ export async function POST(req: Request) {
         department: department.trim(),
         // dob: parsedDob,
         dob: body.dob ? new Date(body.dob) : undefined, // ✅ same fix
+        createdAt: new Date(),
       },
     });
 

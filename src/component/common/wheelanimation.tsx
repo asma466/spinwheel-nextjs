@@ -1,7 +1,7 @@
 'use client';
 
 import axios from 'axios';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useId } from 'react';
 
 export interface WheelComponentProps {
   segments: string[];
@@ -36,21 +36,9 @@ const WheelComponent = ({
   fontSize = '1em',
   outlineWidth = 10,
 }: WheelComponentProps) => {
-  const randomString = () => {
-    const chars =
-      '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split(
-        ''
-      );
-    const length = 8;
-    let str = '';
-    for (let i = 0; i < length; i++) {
-      str += chars[Math.floor(Math.random() * chars.length)];
-    }
-    return str;
-  };
-
-  const canvasId = useRef(`canvas-${randomString()}`);
-  const wheelId = useRef(`wheel-${randomString()}`);
+  const id = useId();
+  const canvasId = useRef(`canvas-${id}`);
+  const wheelId = useRef(`wheel-${id}`);
   const dimension = (size + 20) * 2;
   let currentSegment = '';
   let isStarted = false;
@@ -79,20 +67,43 @@ const WheelComponent = ({
     const fetchData = async () => {
       const searchParams = new URLSearchParams(window.location.search);
       const id = searchParams.get('x');
+      
+      console.log(`[WHEEL COMPONENT] URL search params:`, searchParams.toString());
+      console.log(`[WHEEL COMPONENT] ID from URL (x param):`, id);
+      
+      // Only proceed if ID is available
+      if (!id) {
+        console.warn('[WHEEL COMPONENT] No birthday record ID provided. Use ?x=recordId');
+        wheelInit();
+        return;
+      }
+
       tenstringid = id;
+      console.log(`[WHEEL COMPONENT] Set tenstringid to:`, tenstringid);
 
       try {
+        console.log(`[WHEEL COMPONENT] Sending request to /api/spinwheel with id:`, id);
         const response = await axios.post('/api/spinwheel', {
-          id: id,
+          id: id, // Send as string first, API will parse it
         });
 
         const data = response.data;
+        console.log(`[WHEEL COMPONENT] Received response:`, data);
 
         if (data.prize) {
           prize = data.prize.trim();
+          console.log(`[WHEEL COMPONENT] Prize set to:`, prize);
         }
-      } catch (error) {
-        console.error('Error fetching data:', error);
+      } catch (error: any) {
+        console.error('[WHEEL COMPONENT] Error fetching data:', error);
+        if (error.response?.status === 403) {
+          console.warn('[WHEEL COMPONENT] ⚠️ You have already spun the wheel');
+          alert('You have already spun the wheel this year. Come back next year!');
+        } else if (error.response?.status === 404) {
+          console.error('[WHEEL COMPONENT] ❌ Birthday record not found');
+          alert('Birthday record not found');
+        }
+        // Still initialize wheel even if fetch fails
       }
 
       wheelInit();
@@ -125,8 +136,10 @@ const WheelComponent = ({
     console.log(prize);
 
     if (prize) {
+      // Note: Send prize in finish API call
       axios.post('/api/finish', {
-        id: tenstringid,
+        id: parseInt(tenstringid || '0'),
+        prize: prize,
       });
       isStarted = true;
       if (timerHandle === 0) {

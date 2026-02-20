@@ -1,40 +1,48 @@
+import { PrismaClient } from '@prisma/client';
 
+const prisma = new PrismaClient();
 
-// import { Prisma, PrismaClient } from '@/app/generated/prisma/client';
-// import bcrypt from 'bcryptjs';
-// import { log } from 'console';
-// import { hash } from 'crypto';
-// import 'dotenv/config'
+const main = async () => {
+  console.log('Starting seed...');
 
+  // Seed gifts
+  const gifts = [
+    { name: 'Planter', category: 'Plants' },
+    { name: 'Scented Candles', category: 'Home' },
+    { name: 'Fidget Toys', category: 'Toys' },
+    { name: 'Vase', category: 'Home' },
+    { name: 'Table Lamp', category: 'Furniture' },
+    { name: 'Photo Frame', category: 'Decor' },
+  ];
 
+  for (const gift of gifts) {
+    const existingGift = await prisma.gift.findFirst({
+      where: { name: gift.name },
+    });
 
-// const prisma = new PrismaClient()
+    if (!existingGift) {
+      await prisma.gift.create({
+        data: {
+          name: gift.name,
+          category: gift.category,
+          quantity: 10,
+          available: true,
+        },
+      });
+      console.log(`✅ Created gift: ${gift.name}`);
+    } else {
+      console.log(`⏭️  Gift already exists: ${gift.name}`);
+    }
+  }
 
-// const main = async () =>{
+  console.log('Seed completed!');
+};
 
-//     const hashedPassword = await bcrypt.hash("Asma@1943", 10)
-//     //create data to seed the admin table
-//     const adminData = await prisma.admin.create({
-//         data: {
-//             email: "asma@gmail.com",
-//             password: hashedPassword
-
-//         }
-//     })
-//     console.log("admin created:", adminData);
-    
-// };
-
-
-
-// // export async function main() {
-// //   for (const u of userData) {
-// //     await prisma.user.create({ data: u });
-// //   }
-// // }
-
-// main()
-// .catch((e) => console.error(e))
-// .finally( async ()=>{
-//     await prisma.$disconnect();
-// })
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

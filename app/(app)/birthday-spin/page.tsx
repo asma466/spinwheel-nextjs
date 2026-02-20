@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { DialogDemo } from '@/src/component/common/windialog';
 import { Badge } from '@radix-ui/themes';
-import Snackbar from '@mui/joy/Snackbar';
+import { Toast } from '@/src/component/common/Toast';
 import WheelComponent from '@/src/component/common/wheelanimation';
 import Confetti from 'react-confetti';
 
@@ -60,18 +60,13 @@ export default function BirthdaySpinPage() {
         <Confetti width={window.innerWidth} height={window.innerHeight} />
       )}
 
-      <Snackbar
-        autoHideDuration={2000}
-        open={opensnack}
-        variant="solid"
-        color="danger"
-        onClose={() => {
-          setopensnack(false);
-        }}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        Only Spin once, and if you receive an email from us
-      </Snackbar>
+      <Toast
+        message="Only Spin once, and if you receive an email from us"
+        isOpen={opensnack}
+        onClose={() => setopensnack(false)}
+        type="error"
+        duration={2000}
+      />
 
       <DialogDemo
         open={dialogOpen}

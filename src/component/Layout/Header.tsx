@@ -29,9 +29,10 @@ export function Header({ onToggleSidebar }: HeaderProps) {
     <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 lg:px-6">
       <button
         onClick={onToggleSidebar}
-        className="lg:hidden p-2 hover:bg-muted rounded-lg transition-colors"
+        // className="lg:hidden p-2 hover:bg-muted color-black rounded-lg transition-colors"
+        className="p-2  color-black rounded-lg transition-colors"
       >
-        <Menu className="w-5 h-5 text-muted-foreground" />
+        <Menu size={25} className=" color-black text-[#CE1B22]" />
       </button>
 
       <div className="flex-1" />

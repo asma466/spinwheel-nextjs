@@ -13,7 +13,8 @@ import { cn } from '@/lib/utils';
 interface Column<T> {
   key: string;
   header: string;
-  render?: (item: T) => ReactNode;
+  // render?: (item: T) => ReactNode;
+   render?: (item: T, index: number) => React.ReactNode;
   className?: string;
 }
 
@@ -41,12 +42,12 @@ export function DataTable<T extends { id: string | number }>({
   return (
     <div className="data-table overflow-x-auto">
       <Table>
-        <TableHeader>
+        <TableHeader >
           <TableRow className="hover:bg-transparent">
             {columns.map((column) => (
               <TableHead 
                 key={column.key} 
-                className={cn('table-header py-4 px-6', column.className)}
+                className={cn('table-header  bg-[#CE1B22] text-white font-semibold py-4 px-6', column.className)}
               >
                 {column.header}
               </TableHead>
@@ -69,7 +70,7 @@ export function DataTable<T extends { id: string | number }>({
                   className={cn('py-4 px-6', column.className)}
                 >
                   {column.render 
-                    ? column.render(item) 
+                    ? column.render(item, data.indexOf(item))
                     : (item as Record<string, unknown>)[column.key] as ReactNode
                   }
                 </TableCell>

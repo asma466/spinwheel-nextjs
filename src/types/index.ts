@@ -14,7 +14,7 @@ export interface Employee {
 export interface Gift {
   id: string;
   name: string;
-  description: string;
+  quantity: number;
   available: boolean;
   imageUrl?: string;
   category: string;
@@ -22,7 +22,7 @@ export interface Gift {
 
 export interface BirthdayRecord {
   id: string;
-  employeeId: string;
+  employeeId: number;
   employee: Employee;
   date: string;
   emailSent: boolean;
@@ -34,7 +34,7 @@ export interface BirthdayRecord {
 }
 
 export interface GiftHistory {
-  employeeId: string;
+  employeeId: number;
   giftId: string;
   year: number;
 }

@@ -7,12 +7,13 @@ import { StatusBadge } from '@/src/component/common/StatusBadge';
 import { mockEmployees, mockBirthdayRecords, mockGifts } from '@/src/mockdata/mockdata';
 import { format } from 'date-fns';
 import { useDashboardStats } from '@/src/hooks/useDashboard';
+import { BirthdaySpinwheelLoader } from '@/src/component/common/Loader';
 
 export default function Dashboard() {
   const {data , isLoading } = useDashboardStats()
- if (isLoading) {
-  return <Loader className="w-10 h-10 text-primary animate-spin" />
- }
+//  if (isLoading) {
+//   return <Loader className="w-10 h-10 text-primary animate-spin" />
+//  }
   const today = new Date();
   const todayStr = format(today, 'MM-dd');
   
@@ -31,8 +32,14 @@ export default function Dashboard() {
         title="Dashboard" 
         subtitle={`Welcome back! Here's what's happening today.`}
       />
-
+ 
       {/* Stats Grid */}
+        {isLoading ? (
+        <div className="flex justify-center items-center h-[400px]">
+          <BirthdaySpinwheelLoader  />
+        </div>
+      ) : (
+      <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
           title="Total Employees"
@@ -139,6 +146,8 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      </>
+         )}
     </DashboardLayout>
   );
 }

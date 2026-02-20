@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import pool from '@/lib/db';
 
 
 export async function GET(request: NextRequest) {
@@ -13,12 +14,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Query session from database
-    const results = await query(
+    const [rows] = await pool.execute(
       'SELECT sessions.*, users.id, users.email, users.full_name, users.role FROM sessions JOIN users ON sessions.user_id = users.id WHERE sessions.token = ? AND sessions.expires_at > NOW()',
       [token]
     );
 
-    const sessions = results as any[];
+    const sessions = Array.isArray(rows) ? (rows as any[]) : [];
 
     if (sessions.length === 0) {
       return NextResponse.json(

@@ -1,3 +1,6 @@
+
+
+
 // 'use client';
 // import { Plus, Edit2, Trash2, Users } from 'lucide-react';
 // import { DashboardLayout } from '@/src/component/Layout/DashboardLayout';
@@ -447,6 +450,15 @@ export default function Employees() {
   };
 
   const columns = [
+     {
+    key: "no",
+    header: "No",
+    render: (_: Employee, index: number) => (
+      <span className="text-muted-foreground">
+        {(page - 1) * (meta?.limit ?? 10) + index + 1}
+      </span>
+    ),
+  },
     {
       key: "name",
       header: "Employee",

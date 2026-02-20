@@ -11,6 +11,7 @@ import {
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { SidebarLogo } from '../common/Logo';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -29,24 +30,26 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
   return (
     <aside
+    // 'bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 ease-in-out',
       className={cn(
-        'bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 ease-in-out',
-        collapsed ? 'w-16' : 'w-64'
+        collapsed ? 'w-16' : 'w-64',
+        'sidebar-container'
       )}
     >
       {/* Logo */}
-      <div className="h-16 flex items-center px-4 border-b border-sidebar-border">
+      {/* <div className="h-16 flex items-center px-4 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center flex-shrink-0">
             <PartyPopper className="w-5 h-5 text-primary-foreground" />
           </div>
           {!collapsed && (
             <span className="font-semibold text-foreground tracking-tight">
-              HR Dashboard
+              <Logo/>
             </span>
           )}
         </div>
-      </div>
+      </div> */}
+      <SidebarLogo collapsed={collapsed} />
 
       {/* Navigation */}
       <nav className="flex-1 p-3 space-y-1">
@@ -60,7 +63,9 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               href={item.href}
               className={cn(
                 'nav-item',
-                isActive ? 'nav-item-active' : 'nav-item-inactive',
+               isActive
+    ? 'bg-[#CE1B22] text-white hover:bg-[#b9171d]'
+    : 'hover:bg-white hover:text-[#CE1B22]',
                 collapsed && 'justify-center px-0'
               )}
               title={collapsed ? item.label : undefined}
@@ -73,7 +78,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       </nav>
 
       {/* Collapse Toggle */}
-      <div className="p-3 border-t border-sidebar-border">
+      {/* <div className="p-3 border-t border-sidebar-border">
         <button
           onClick={onToggle}
           className={cn(
@@ -90,7 +95,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             </>
           )}
         </button>
-      </div>
+      </div> */}
     </aside>
   );
 }
