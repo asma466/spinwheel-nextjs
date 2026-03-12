@@ -17,13 +17,24 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/options";
+import bcrypt from "bcryptjs";
 
 export async function PUT(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+ const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== "ADMIN") {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
+
+// if (!session) {
+//   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+// }
     const { id } = await context.params; // ✅ unwrap params properly
    
     const body = await request.json();
@@ -37,6 +48,8 @@ export async function PUT(
         email: body.email,
         department: body.department,
         dob: body.dob ? new Date(body.dob) : undefined, // ✅ important
+        role: body.role, 
+         ...(body.password ? { password: await bcrypt.hash(body.password, 10) } : {}),
       },
     });
 
@@ -58,6 +71,12 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== "ADMIN") {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+
     const { id } = await context.params; 
 
     await prisma.employee.delete({

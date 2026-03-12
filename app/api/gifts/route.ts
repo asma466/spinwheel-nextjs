@@ -27,11 +27,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, quantity, category, available } = body;
+    const { name, quantity, available } = body;
 
-    if (!name || quantity === undefined || !category) {
+    if (!name || quantity === undefined ) {
       return NextResponse.json(
-        { error: 'Name, quantity, and category are required' },
+        { error: 'Name and quantity are required' },
         { status: 400 }
       );
     }

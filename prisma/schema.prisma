@@ -8,13 +8,20 @@ datasource db {
  
 }
 
+ enum Role {
+  ADMIN
+  USER
+}
 model Employee {
   id           Int       @id @default(autoincrement())
   name         String
   email        String    @unique
   dob          DateTime @default(now())
   department   String
-  createdAt    DateTime  
+    role       Role?   @default(USER) // 👈 add this
+    password   String?
+   createdAt  DateTime @default(now())
+ updatedAt  DateTime @default(now()) @updatedAt
   // spins        SpinHistory[]
   birthdayRecords BirthdayRecord[]
 }
@@ -56,13 +63,16 @@ model BirthdayRecord {
   year            Int
   emailSent       Boolean   @default(false)
   spinCompleted   Boolean   @default(false)
-
+  autoEmail       Boolean   @default(false)   
+   emailSentAt     DateTime?        // 👈 ADD THIS
   // Relations
   employeeId      Int
   employee        Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   giftReceivedId  Int?
   giftReceived    Gift?     @relation(fields: [giftReceivedId], references: [id])
+  spinToken       String?   @unique
+  tokenExpiresAt  DateTime?
 
   giftReceivedAt  DateTime?
 

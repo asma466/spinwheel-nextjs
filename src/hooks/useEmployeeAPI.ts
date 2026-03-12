@@ -114,12 +114,13 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import axios from 'axios';
 import { Employee } from '@/src/types';
+import { api } from '@/lib/axios';
 
 export const useEmployees = (search: string, page: number) =>
   useQuery({
     queryKey: ['employees', search, page],
     queryFn: async () => {
-      const res = await axios.get('/api/employees', {
+      const res = await api.get('/employees', {
         params: { search, page, limit: 10 },
       });
       return res.data;
@@ -127,6 +128,7 @@ export const useEmployees = (search: string, page: number) =>
       // return res.data.employees; 
     },
     placeholderData: keepPreviousData,
+    staleTime: 1000 * 60, // 1 minute
   });
 
 export const useCreateEmployee = () => {
@@ -134,7 +136,10 @@ export const useCreateEmployee = () => {
 
   return useMutation({
     mutationFn: (data: Omit<Employee, 'id'>) =>
-      axios.post('/api/employees', data),
+      // axios.post('/api/employees', data),
+    api.post('/employees', data, {
+  withCredentials: true,
+}),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
@@ -147,7 +152,7 @@ export const useUpdateEmployee = () => {
 
   return useMutation({
     mutationFn: ({ id, ...data }: { id: number } & Partial<Employee>) =>
-      axios.put(`/api/employees/${id}`, data),
+      api.put(`/employees/${id}`, data),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
@@ -160,7 +165,7 @@ export const useDeleteEmployee = () => {
 
   return useMutation({
     mutationFn: (id: number) =>
-      axios.delete(`/api/employees/${id}`),
+      api.delete(`/employees/${id}`),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });

@@ -1,6 +1,267 @@
-"use client";
+// "use client";
 
-import { useState, useMemo } from 'react';
+// import { useState, useMemo } from 'react';
+// import { Cake, Send } from 'lucide-react';
+// import { Button } from '@/components/ui/button';
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+// import { format, isToday, startOfDay } from 'date-fns';
+// import { toast } from 'sonner';
+
+// import { DashboardLayout } from '@/src/component/Layout/DashboardLayout';
+// import { PageHeader } from '@/src/component/common/PageHeader';
+// import { SearchInput } from '@/src/component/common/SearchInput';
+// import { DataTable } from '@/src/component/common/DataTable';
+// import { EmptyState } from '@/src/component/common/EmptyState';
+// import { useEmployees } from '@/src/hooks/useEmployeeAPI';
+// import { useBirthdayRecords, useSendBirthdayEmail } from '@/src/hooks/useBirthdayRecord';
+// import { BirthdaySpinwheelLoader } from '@/src/component/common/Loader';
+
+// function InitialsAvatar({ name }: { name: string }) {
+//   const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+//   return (
+//     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
+//       {initials}
+//     </div>
+//   );
+// }
+
+// export default function Birthdays() {
+//   const [searchQuery, setSearchQuery] = useState('');
+//   const [filterStatus, setFilterStatus] = useState<'all' | 'today' | 'pending' | 'completed'>('all');
+
+//   const today = new Date();
+//   const currentYear = today.getFullYear();
+
+//   const { data, isLoading: loadingEmployees } = useEmployees(searchQuery, 1);
+//   const employees = Array.isArray(data?.data) ? data.data : [];
+
+//   const { data: records = [], isLoading: loadingRecords } = useBirthdayRecords();
+//   const sendEmailMutation = useSendBirthdayEmail();
+//   const isLoading = loadingEmployees || loadingRecords;
+
+//   const recordMap = useMemo(() => new Map(records.map((r: any) => [r.employeeId, r])), [records]);
+
+//   const employeeBirthdayData = useMemo(() => {
+//     return employees
+//       .map((emp: any) => {
+//         const record = recordMap.get(emp.id);
+//         let birthdayThisYear: Date | null = null;
+//         if (emp.dob) {
+//           const d = new Date(emp.dob);
+//           birthdayThisYear = new Date(currentYear, d.getMonth(), d.getDate());
+//         }
+//         const isBirthdayToday = birthdayThisYear ? isToday(birthdayThisYear) : false;
+//         const isPast = birthdayThisYear ? (birthdayThisYear < startOfDay(today) && !isBirthdayToday) : false;
+
+//         return {
+//           id: record?.id || `temp-${emp.id}`,
+//           employee: emp,
+//           birthdayDate: birthdayThisYear,
+//           isBirthdayToday,
+//           isPast,
+//           emailSent: record?.emailSent || false,
+//           emailSentAt: record?.emailSentAt || null,
+//           spinCompleted: record?.spinCompleted || false,
+//           giftReceived: record?.giftReceived,
+//           giftReceivedAt: record?.giftReceivedAt || null,
+//           pastGifts: record?.pastGiftsCount || 0,
+//         };
+//       })
+//       .sort((a: any, b: any) => {
+//         if (!a.birthdayDate) return 1;
+//         if (!b.birthdayDate) return -1;
+//         return a.birthdayDate.getTime() - b.birthdayDate.getTime();
+//       });
+//   }, [employees, recordMap, currentYear, today]);
+
+//   const filteredData = useMemo(() => {
+//     let filtered = employeeBirthdayData;
+//     if (searchQuery) {
+//       const q = searchQuery.toLowerCase();
+//       filtered = filtered.filter((i: any) => i.employee.name.toLowerCase().includes(q) || (i.employee.department || '').toLowerCase().includes(q));
+//     }
+//     switch (filterStatus) {
+//       case 'today':
+//         filtered = filtered.filter((i: any) => i.isBirthdayToday);
+//         break;
+//       case 'pending':
+//         filtered = filtered.filter((i: any) => !i.emailSent && i.isBirthdayToday);
+//         break;
+//       case 'completed':
+//         filtered = filtered.filter((i: any) => i.spinCompleted);
+//         break;
+//     }
+//     return filtered;
+//   }, [employeeBirthdayData, searchQuery, filterStatus]);
+
+//   const todayCount = employeeBirthdayData.filter((i: any) => i.isBirthdayToday).length;
+//   const pendingCount = employeeBirthdayData.filter((i: any) => !i.emailSent && i.isBirthdayToday).length;
+
+//   const columns = [
+//     {
+//       key: 'employee',
+//       header: 'Employee',
+//       render: (item: any) => (
+//         <div className="flex items-center gap-3">
+//           <InitialsAvatar name={item.employee.name} />
+//           <div>
+//             <div className="font-medium">{item.employee.name}</div>
+//             <div className="text-sm text-muted-foreground">{item.employee.department || ''}</div>
+//           </div>
+//         </div>
+//       ),
+//     },
+//     {
+//       key: 'birthday',
+//       header: 'Birthday',
+//       render: (item: any) => (
+//         <div className="flex items-center gap-2">
+//           <div className="font-medium">{item.birthdayDate ? format(item.birthdayDate, 'MMM d') : '-'}</div>
+//           {item.isBirthdayToday && <span className="px-2 py-0.5 bg-success/10 text-success text-xs font-medium rounded-full">Today 🎉</span>}
+//         </div>
+//       ),
+//     },
+//     {
+//       key: 'email',
+//       header: 'Email',
+//       render: (item: any) => (
+//         <div className="text-sm">
+//           {item.emailSent ? (
+//             <div className="text-green-600">Sent{item.emailSentAt ? ` • ${format(new Date(item.emailSentAt), 'MMM d, yyyy')}` : ''}</div>
+//           ) : (
+//             <div className="text-muted-foreground">Not sent</div>
+//           )}
+//         </div>
+//       ),
+//     },
+//     {
+//       key: 'status',
+//       header: 'Status',
+//       render: (item: any) => (
+//         <div className="text-sm">
+//           {item.spinCompleted ? <span className="text-green-600">Gift sent</span> : (item.emailSent ? <span className="text-amber-600">Awaiting Spin</span> : <span className="text-muted-foreground">Pending</span>)}
+//         </div>
+//       ),
+//     },
+//     // {
+//     //   key: 'past',
+//     //   header: 'History',
+//     //   render: (item: any) => (
+//     //     item.giftReceived ? (
+//     //       <div className="text-sm">
+//     //         Received: {item.giftReceived.name}{item.giftReceivedAt ? ` • ${format(new Date(item.giftReceivedAt), 'MMM d, yyyy')}` : ''}
+//     //       </div>
+//     //     ) : item.pastGifts ? (
+//     //       <div className="text-sm">{item.pastGifts} gift(s) received</div>
+//     //     ) : (
+//     //       <div className="text-sm text-muted-foreground">No history</div>
+//     //     )
+//     //   ),
+//     // },
+//     {
+  // key: 'past',
+  // header: 'History',
+  // render: (item: any) => {
+  //   if (item.giftReceived) {
+  //     return (
+  //       <div className="text-sm">
+  //         <div className="font-medium text-green-600">
+  //           🎁 {item.giftReceived.name}
+  //         </div>
+  //         {item.giftReceivedAt && (
+  //           <div className="text-muted-foreground text-xs">
+  //             {format(new Date(item.giftReceivedAt), 'MMM d, yyyy')}
+  //           </div>
+  //         )}
+  //       </div>
+  //     );
+  //   }
+
+//     return (
+//       <div className="text-sm text-muted-foreground">
+//         No history
+//       </div>
+//     );
+//   },
+// },
+//     {
+//       key: 'actions',
+//       header: '',
+//       className: 'text-right',
+//       render: (item: any) => (
+//         item.isBirthdayToday ? (
+//           <Button 
+//             size="sm" 
+//             onClick={() => sendEmailMutation.mutate(item.employee.id, { 
+//               onSuccess: () => toast.success('Email sent successfully!') 
+//             })}
+//             variant={item.emailSent ? "outline" : "default"}
+//           >
+//             <Send className="w-4 h-4 mr-1" /> 
+//             {item.emailSent ? 'Resend' : 'Send'}
+//           </Button>
+//         ) : null
+//       ),
+//     },
+//   ];
+
+//   return (
+//     <DashboardLayout>
+//       <div className="space-y-6">
+//         <div className="flex items-center justify-between gap-4">
+//           <PageHeader title="Birthday Tracking" subtitle={`${todayCount} today • ${pendingCount} pending`} />
+//           <div className="flex items-center gap-3">
+//             <div className="grid grid-cols-2 gap-3 sm:flex sm:gap-4">
+//               <div className="p-3 bg-card rounded-lg text-center">
+//                 <div className="text-sm text-muted-foreground">Today's Birthdays</div>
+//                 <div className="text-2xl font-semibold">{todayCount}</div>
+//               </div>
+//               <div className="p-3 bg-card rounded-lg text-center">
+//                 <div className="text-sm text-muted-foreground">Pending Emails</div>
+//                 <div className="text-2xl font-semibold">{pendingCount}</div>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+
+//         <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+//           <div className="flex-1">
+//             <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Search by name or department..." />
+//           </div>
+
+//           <div className="w-full sm:w-48">
+//             <Select value={filterStatus} onValueChange={v => setFilterStatus(v as any)}>
+//               <SelectTrigger className="w-full bg-background">
+//                 <SelectValue placeholder="Filter" />
+//               </SelectTrigger>
+//               <SelectContent>
+//                 <SelectItem value="all">All</SelectItem>
+//                 <SelectItem value="today">Today's</SelectItem>
+//                 <SelectItem value="pending">Pending</SelectItem>
+//                 <SelectItem value="completed">Completed</SelectItem>
+//               </SelectContent>
+//             </Select>
+//           </div>
+//         </div>
+
+//         {isLoading ? (
+//           // <div className="p-8 text-center">Loading...</div>
+//           <BirthdaySpinwheelLoader />
+//         ) : (
+//           filteredData.length ? (
+//             <DataTable data={filteredData} columns={columns} />
+//           ) : (
+//             <EmptyState icon={Cake} title="No birthdays found" description="Try adjusting filters or add employees" />
+//           )
+//         )}
+//       </div>
+//     </DashboardLayout>
+//   );
+// }
+
+'use client';
+
+import { useState, useMemo, useEffect } from 'react';
 import { Cake, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -14,10 +275,15 @@ import { DataTable } from '@/src/component/common/DataTable';
 import { EmptyState } from '@/src/component/common/EmptyState';
 import { useEmployees } from '@/src/hooks/useEmployeeAPI';
 import { useBirthdayRecords, useSendBirthdayEmail } from '@/src/hooks/useBirthdayRecord';
-import { BirthdaySpinwheelLoader } from '@/src/component/common/Loader';
 
 function InitialsAvatar({ name }: { name: string }) {
-  const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+  const initials = name
+    .split(' ')
+    .map(n => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
   return (
     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
       {initials}
@@ -39,127 +305,305 @@ export default function Birthdays() {
   const sendEmailMutation = useSendBirthdayEmail();
   const isLoading = loadingEmployees || loadingRecords;
 
+  // Map birthday records by employeeId for fast lookup
   const recordMap = useMemo(() => new Map(records.map((r: any) => [r.employeeId, r])), [records]);
 
+  // Build employee birthday data with today check
   const employeeBirthdayData = useMemo(() => {
-    return employees
-      .map((emp: any) => {
-        const record = recordMap.get(emp.id);
-        let birthdayThisYear: Date | null = null;
-        if (emp.dob) {
-          const d = new Date(emp.dob);
-          birthdayThisYear = new Date(currentYear, d.getMonth(), d.getDate());
-        }
-        const isBirthdayToday = birthdayThisYear ? isToday(birthdayThisYear) : false;
-        const isPast = birthdayThisYear ? (birthdayThisYear < startOfDay(today) && !isBirthdayToday) : false;
+    return employees.map((emp: any) => {
+      const record = recordMap.get(emp.id);
+      let birthdayThisYear: Date | null = null;
 
-        return {
-          id: record?.id || `temp-${emp.id}`,
-          employee: emp,
-          birthdayDate: birthdayThisYear,
-          isBirthdayToday,
-          isPast,
-          emailSent: record?.emailSent || false,
-          emailSentAt: record?.emailSentAt || null,
-          spinCompleted: record?.spinCompleted || false,
-          giftReceived: record?.giftReceived,
-          giftReceivedAt: record?.giftReceivedAt || null,
-          pastGifts: record?.pastGiftsCount || 0,
-        };
-      })
-      .sort((a: any, b: any) => {
-        if (!a.birthdayDate) return 1;
-        if (!b.birthdayDate) return -1;
-        return a.birthdayDate.getTime() - b.birthdayDate.getTime();
-      });
+      if (emp.dob) {
+        const dob = new Date(emp.dob);
+        birthdayThisYear = new Date(currentYear, dob.getMonth(), dob.getDate());
+      }
+
+      const isBirthdayToday = birthdayThisYear ? isToday(birthdayThisYear) : false;
+      const isPast = birthdayThisYear ? birthdayThisYear < startOfDay(today) && !isBirthdayToday : false;
+
+      return {
+        id: record?.id || `temp-${emp.id}`,
+        employee: emp,
+        birthdayDate: birthdayThisYear,
+        isBirthdayToday,
+        isPast,
+        emailSent: record?.emailSent || false,
+        spinCompleted: record?.spinCompleted || false,
+        giftReceived: record?.giftReceived || null,
+giftReceivedAt: record?.giftReceivedAt || null,
+      };
+    });
   }, [employees, recordMap, currentYear, today]);
 
-  const filteredData = useMemo(() => {
-    let filtered = employeeBirthdayData;
+  // Filter and sort data for table
+  const filteredAndSorted = useMemo(() => {
+    let data = employeeBirthdayData;
+
+    // Apply search filter
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      filtered = filtered.filter((i: any) => i.employee.name.toLowerCase().includes(q) || (i.employee.department || '').toLowerCase().includes(q));
+      data = data.filter(
+        (i: any) =>
+          i.employee.name.toLowerCase().includes(q) ||
+          (i.employee.department || '').toLowerCase().includes(q)
+      );
     }
+
+    // Apply status filter
     switch (filterStatus) {
       case 'today':
-        filtered = filtered.filter((i: any) => i.isBirthdayToday);
+        data = data.filter((i: any) => i.isBirthdayToday);
         break;
       case 'pending':
-        filtered = filtered.filter((i: any) => !i.emailSent && i.isBirthdayToday);
+        data = data.filter((i: any) => !i.emailSent && i.isBirthdayToday);
         break;
       case 'completed':
-        filtered = filtered.filter((i: any) => i.spinCompleted);
+        data = data.filter((i: any) => i.spinCompleted);
         break;
     }
-    return filtered;
+
+    // Sort birthdays: today first, then upcoming, then others
+    data = data.sort((a: any, b: any) => {
+      if (a.isBirthdayToday && !b.isBirthdayToday) return -1;
+      if (!a.isBirthdayToday && b.isBirthdayToday) return 1;
+
+      if (a.birthdayDate && b.birthdayDate) return a.birthdayDate.getTime() - b.birthdayDate.getTime();
+      if (!a.birthdayDate) return 1;
+      if (!b.birthdayDate) return -1;
+      return 0;
+    });
+
+    return data;
   }, [employeeBirthdayData, searchQuery, filterStatus]);
 
+//   useEffect(() => {
+//   employeeBirthdayData.forEach((emp: any) => {
+//     // Auto-send only if birthday is today or tomorrow and email not yet sent
+//     if ((emp.isBirthdayToday || emp.isBirthdayTomorrow) && !emp.emailSent) {
+//       sendEmailMutation.mutate(emp.employee.id, {
+//         onSuccess: () =>
+//           toast.success(`Birthday email sent to ${emp.employee.name}`),
+//       });
+//     }
+//   });
+// }, [employeeBirthdayData, sendEmailMutation]);
   const todayCount = employeeBirthdayData.filter((i: any) => i.isBirthdayToday).length;
   const pendingCount = employeeBirthdayData.filter((i: any) => !i.emailSent && i.isBirthdayToday).length;
 
-  const columns = [
-    {
-      key: 'employee',
-      header: 'Employee',
-      render: (item: any) => (
-        <div className="flex items-center gap-3">
-          <InitialsAvatar name={item.employee.name} />
-          <div>
-            <div className="font-medium">{item.employee.name}</div>
-            <div className="text-sm text-muted-foreground">{item.employee.department || ''}</div>
-          </div>
+
+  // const currentYear = new Date().getFullYear();
+const previousYear = currentYear - 1;
+
+// const { data: records = [] } = useBirthdayRecords();
+
+// Map employeeId -> last year gift
+const lastYearGiftMap = useMemo(() => {
+  const map = new Map<number, string>();
+
+  records.forEach((record: any) => {
+    if (!record.giftReceived) return;
+
+    const year = record.year ?? new Date(record.createdAt).getFullYear();
+
+    if (year === previousYear) {
+      map.set(Number(record.employeeId), record.giftReceived.name);
+    }
+  });
+
+  return map;
+}, [records, previousYear]);
+//   const columns = [
+//     {
+//       key: 'employee',
+//       header: 'Employee',
+//       render: (item: any) => (
+//         <div className="flex items-center gap-3">
+//           <InitialsAvatar name={item.employee.name} />
+//           <div>
+//             <div className="font-medium">{item.employee.name}</div>
+//             <div className="text-sm text-muted-foreground">{item.employee.department || ''}</div>
+//           </div>
+//         </div>
+//       ),
+//     },
+//     {
+//       key: 'birthday',
+//       header: 'Birthday',
+//       render: (item: any) => (
+//         <div className="flex items-center gap-2">
+//           <div className="font-medium">{item.birthdayDate ? format(item.birthdayDate, 'MMM d') : '-'}</div>
+//           {item.isBirthdayToday && (
+//             <span className="px-2 py-0.5 bg-success/10 text-success text-xs font-medium rounded-full">
+//               Today 🎉
+//             </span>
+//           )}
+//         </div>
+//       ),
+//     },
+// //     {
+// //   key: 'email',
+// //   header: 'Email',
+// //   render: (item: any) => (
+// //     <div className="text-sm">
+// //       {item.emailSent ? (
+// //         <span className="text-green-600 font-medium">Sent ✓</span>
+// //       ) : (
+// //         <span className="text-red-500">Pending</span>
+// //       )}
+// //     </div>
+// //   ),
+// // },
+// {
+//   key: 'emailTime',
+//   header: 'Email Time',
+//   render: (item: any) =>
+//     item.emailSentAt
+//       ? format(new Date(item.emailSentAt), "MMM d, HH:mm")
+//       : "-"
+// },
+//     {
+//       key: 'status',
+//       header: 'Status',
+//       render: (item: any) => (
+//         <div className="text-sm">
+//           {item.spinCompleted ? (
+//             <span className="text-green-600">Gift sent</span>
+//           ) : item.emailSent ? (
+//             <span className="text-amber-600">Awaiting Spin</span>
+//           ) : (
+//             <span className="text-muted-foreground">Pending</span>
+//           )}
+//         </div>
+//       ),
+//     },
+// //     {
+// //   key: 'history',
+// //   header: 'History',
+// //   render: (item: any) => (
+// //     <div className="text-sm">
+// //       {item.spinCompleted ? (
+// //         <div>
+// //           <div className="font-medium">{item.giftReceived?.name || 'Gift Assigned'}</div>
+// //           {item.giftReceivedAt && (
+// //             <div className="text-xs text-muted-foreground">
+// //               {format(new Date(item.giftReceivedAt), 'MMM d, yyyy')}
+// //             </div>
+// //           )}
+// //         </div>
+// //       ) : (
+// //         <span className="text-muted-foreground text-xs">No history</span>
+// //       )}
+// //     </div>
+// //   ),
+// // },
+
+// {
+//   key: 'history',
+//   header: 'Last Year Gift',
+//   render: (item: any) => {
+//     const lastGift = lastYearGiftMap.get(item.employee.id);
+//     return lastGift ? lastGift : '-';
+//   }
+// },
+//     {
+//       key: 'actions',
+//       header: '',
+//       className: 'text-right',
+//       render: (item: any) =>
+//         item.isBirthdayToday ? (
+//           <Button
+//             size="sm"
+//             variant={item.emailSent ? 'outline' : 'default'}
+//             onClick={() =>
+//               sendEmailMutation.mutate(item.employee.id, {
+//                 onSuccess: () => toast.success('Email sent successfully!'),
+//               })
+//             }
+//           >
+//             <Send className="w-4 h-4 mr-1" /> {item.emailSent ? 'Resend' : 'Send'}
+//           </Button>
+//         ) : null,
+//     },
+//   ];
+
+const columns = [
+  {
+    key: 'employee',
+    header: 'Employee',
+    render: (item: any) => (
+      <div className="flex items-center gap-3">
+        <InitialsAvatar name={item.employee.name} />
+        <div>
+          <div className="font-medium">{item.employee.name}</div>
+          <div className="text-sm text-muted-foreground">{item.employee.department || ''}</div>
         </div>
-      ),
-    },
-    {
-      key: 'birthday',
-      header: 'Birthday',
-      render: (item: any) => (
-        <div className="flex items-center gap-2">
-          <div className="font-medium">{item.birthdayDate ? format(item.birthdayDate, 'MMM d') : '-'}</div>
-          {item.isBirthdayToday && <span className="px-2 py-0.5 bg-success/10 text-success text-xs font-medium rounded-full">Today 🎉</span>}
-        </div>
-      ),
-    },
-    {
-      key: 'email',
-      header: 'Email',
-      render: (item: any) => (
-        <div className="text-sm">
-          {item.emailSent ? (
-            <div className="text-green-600">Sent{item.emailSentAt ? ` • ${format(new Date(item.emailSentAt), 'MMM d, yyyy')}` : ''}</div>
-          ) : (
-            <div className="text-muted-foreground">Not sent</div>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      render: (item: any) => (
-        <div className="text-sm">
-          {item.spinCompleted ? <span className="text-green-600">Gift sent</span> : (item.emailSent ? <span className="text-amber-600">Awaiting Spin</span> : <span className="text-muted-foreground">Pending</span>)}
-        </div>
-      ),
-    },
-    // {
-    //   key: 'past',
-    //   header: 'History',
-    //   render: (item: any) => (
-    //     item.giftReceived ? (
-    //       <div className="text-sm">
-    //         Received: {item.giftReceived.name}{item.giftReceivedAt ? ` • ${format(new Date(item.giftReceivedAt), 'MMM d, yyyy')}` : ''}
-    //       </div>
-    //     ) : item.pastGifts ? (
-    //       <div className="text-sm">{item.pastGifts} gift(s) received</div>
-    //     ) : (
-    //       <div className="text-sm text-muted-foreground">No history</div>
-    //     )
-    //   ),
-    // },
-    {
-  key: 'past',
+      </div>
+    ),
+  },
+  {
+    key: 'birthday',
+    header: 'Birthday',
+    render: (item: any) => (
+      <div className="flex items-center gap-2">
+        <div className="font-medium">{item.birthdayDate ? format(item.birthdayDate, 'MMM d') : '-'}</div>
+        {item.isBirthdayToday && (
+          <span className="px-2 py-0.5 bg-success/10 text-success text-xs font-medium rounded-full">
+            Today 🎉
+          </span>
+        )}
+      </div>
+    ),
+  },
+  {
+    key: 'email',
+    header: 'Email',
+    render: (item: any) => (
+      <div className="text-sm flex flex-col">
+        {item.emailSent ? (
+          <span className={`font-medium ${item.autoEmail ? 'text-blue-600' : 'text-green-600'}`}>
+            {item.autoEmail ? 'Auto Sent ✓' : 'Sent ✓'}
+          </span>
+        ) : (
+          <span className="text-red-500">Pending</span>
+        )}
+        {item.emailSentAt && (
+          <span className="text-xs text-muted-foreground">
+            {format(new Date(item.emailSentAt), 'MMM d, HH:mm')}
+          </span>
+        )}
+      </div>
+    ),
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    render: (item: any) => (
+      <div className="text-sm">
+        {item.spinCompleted ? (
+          <span className="text-green-600">Gift sent</span>
+        ) : item.emailSent ? (
+          <span className="text-amber-600">Awaiting Spin</span>
+        ) : (
+          <span className="text-muted-foreground">Pending</span>
+        )}
+      </div>
+    ),
+  },
+  // {
+  //   key: 'history',
+  //   header: 'Last Year Gift',
+  //   render: (item: any) => {
+  //     const lastGift = lastYearGiftMap.get(item.employee.id);
+  //     return lastGift ? (
+  //       <div className="text-sm">{lastGift}</div>
+  //     ) : (
+  //       <div className="text-sm text-muted-foreground">-</div>
+  //     );
+  //   },
+  // },
+  {
+   key: 'past',
   header: 'History',
   render: (item: any) => {
     if (item.giftReceived) {
@@ -176,50 +620,48 @@ export default function Birthdays() {
         </div>
       );
     }
-
-    return (
-      <div className="text-sm text-muted-foreground">
-        No history
-      </div>
-    );
+  } },
+  {
+    key: 'actions',
+    header: '',
+    className: 'text-right',
+    render: (item: any) =>
+      item.isBirthdayToday ? (
+        <Button
+          size="sm"
+          variant={item.emailSent ? 'outline' : 'default'}
+          onClick={() =>
+            sendEmailMutation.mutate(item.employee.id, {
+              onSuccess: () => toast.success('Email sent successfully!'),
+            })
+          }
+        >
+          <Send className="w-4 h-4 mr-1" /> {item.emailSent ? 'Resend' : 'Send'}
+        </Button>
+      ) : null,
   },
-},
-    {
-      key: 'actions',
-      header: '',
-      className: 'text-right',
-      render: (item: any) => (
-        item.isBirthdayToday ? (
-          <Button 
-            size="sm" 
-            onClick={() => sendEmailMutation.mutate(item.employee.id, { 
-              onSuccess: () => toast.success('Email sent successfully!') 
-            })}
-            variant={item.emailSent ? "outline" : "default"}
-          >
-            <Send className="w-4 h-4 mr-1" /> 
-            {item.emailSent ? 'Resend' : 'Send'}
-          </Button>
-        ) : null
-      ),
-    },
-  ];
+];
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="p-8 text-center">Loading...</div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between gap-4">
           <PageHeader title="Birthday Tracking" subtitle={`${todayCount} today • ${pendingCount} pending`} />
-          <div className="flex items-center gap-3">
-            <div className="grid grid-cols-2 gap-3 sm:flex sm:gap-4">
-              <div className="p-3 bg-card rounded-lg text-center">
-                <div className="text-sm text-muted-foreground">Today's Birthdays</div>
-                <div className="text-2xl font-semibold">{todayCount}</div>
-              </div>
-              <div className="p-3 bg-card rounded-lg text-center">
-                <div className="text-sm text-muted-foreground">Pending Emails</div>
-                <div className="text-2xl font-semibold">{pendingCount}</div>
-              </div>
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:gap-4">
+            <div className="p-3 bg-card rounded-lg text-center">
+              <div className="text-sm text-muted-foreground">Today's Birthdays</div>
+              <div className="text-2xl font-semibold">{todayCount}</div>
+            </div>
+            <div className="p-3 bg-card rounded-lg text-center">
+              <div className="text-sm text-muted-foreground">Pending Emails</div>
+              <div className="text-2xl font-semibold">{pendingCount}</div>
             </div>
           </div>
         </div>
@@ -244,15 +686,10 @@ export default function Birthdays() {
           </div>
         </div>
 
-        {isLoading ? (
-          // <div className="p-8 text-center">Loading...</div>
-          <BirthdaySpinwheelLoader />
+        {filteredAndSorted.length ? (
+          <DataTable data={filteredAndSorted} columns={columns} />
         ) : (
-          filteredData.length ? (
-            <DataTable data={filteredData} columns={columns} />
-          ) : (
-            <EmptyState icon={Cake} title="No birthdays found" description="Try adjusting filters or add employees" />
-          )
+          <EmptyState icon={Cake} title="No birthdays found" description="Try adjusting filters or add employees" />
         )}
       </div>
     </DashboardLayout>

@@ -165,7 +165,6 @@
 
 
 "use client";
-
 import { Employee } from "@/src/types";
 import {
   Dialog,
@@ -183,6 +182,7 @@ import {
   useUpdateEmployee,
 } from "@/src/hooks/useEmployeeAPI";
 
+
 interface EmployeeModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -194,6 +194,7 @@ export const EmployeeModal = ({
   onOpenChange,
   employee,
 }: EmployeeModalProps) => {
+  
   const { formData, handleChange } = useEmployeeForm(employee);
 
   const { mutateAsync: createEmployee, isPending: isCreating } =
@@ -204,20 +205,66 @@ export const EmployeeModal = ({
 
   const isSubmitting = isCreating || isUpdating;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
 
-    if (employee) {
-      await updateEmployee({
-        id: employee.id,
-        ...formData, // ✅ matches updated mutation
-      });
-    } else {
-      await createEmployee(formData);
+  //   if (employee) {
+  //     await updateEmployee({
+  //       id: employee.id,
+  //       ...formData, // ✅ matches updated mutation
+  //     });
+  //   } else {
+  //     await createEmployee(formData);
+  //   }
+
+  //   onOpenChange(false);
+  // };
+
+  //  const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+
+  //   // Basic validation for ADMIN
+  //   if (formData.role === "ADMIN" && !formData.password && !employee) {
+  //     alert("Password is required for Admin");
+  //     return;
+  //   }
+
+  //   if (employee) {
+  //     await updateEmployee({
+  //       id: employee.id,
+  //       ...formData,
+  //     });
+  //   } else {
+  //     await createEmployee(formData);
+  //   }
+
+  //   onOpenChange(false);
+  // };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  // ✅ Check if user is logged in
+  // const { data: session } = useSession();
+
+
+   // ADMIN password validation
+    if (formData.role === "ADMIN" && !formData.password && !employee) {
+      alert("Password is required for Admin");
+      return;
     }
 
-    onOpenChange(false);
-  };
+    try {
+      if (employee) {
+        await updateEmployee({ id: employee.id, ...formData });
+      } else {
+        await createEmployee(formData);
+      }
+      onOpenChange(false);
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Error creating employee");
+    }
+};
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -236,7 +283,7 @@ export const EmployeeModal = ({
                 id="name"
                 value={formData.name ?? ""}
                 onChange={(e) => handleChange("name", e.target.value)}
-                placeholder="John Doe"
+                // placeholder="John Doe"
                 required
               />
             </div>
@@ -248,7 +295,7 @@ export const EmployeeModal = ({
                 type="email"
                 value={formData.email ?? ""}
                 onChange={(e) => handleChange("email", e.target.value)}
-                placeholder="john@company.com"
+                // placeholder="Enter email"
                 required
               />
             </div>
@@ -261,7 +308,7 @@ export const EmployeeModal = ({
                 onChange={(e) =>
                   handleChange("department", e.target.value)
                 }
-                placeholder="Engineering"
+                // placeholder="Enter department"
                 required
               />
             </div>
@@ -278,7 +325,38 @@ export const EmployeeModal = ({
                 required
               />
             </div>
+        {/* Role */}
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <select
+                id="role"
+                value={formData.role}
+                onChange={(e) => handleChange("role", e.target.value)}
+                className="w-full border rounded-md px-3 py-2 bg-background"
+                required
+              >
+                <option value="">Select Role</option>
+                <option value="ADMIN">Admin</option>
+                <option value="USER">User</option>
+              </select>
+            </div>
+
+            {/* Password (Only if ADMIN) */}
+            {formData.role === "ADMIN" && (
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => handleChange("password", e.target.value)}
+                  required={!employee} // required only when creating
+                />
+              </div>
+            )}
           </div>
+
+
 
           <div className="flex justify-end gap-3 pt-4">
             <Button

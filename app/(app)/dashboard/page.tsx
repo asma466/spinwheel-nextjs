@@ -4,7 +4,7 @@ import { DashboardLayout } from '@/src/component/Layout/DashboardLayout';
 import { StatCard } from '@/src/component/common/StatCard';
 import { PageHeader } from '@/src/component/common/PageHeader';
 import { StatusBadge } from '@/src/component/common/StatusBadge';
-import { mockEmployees, mockBirthdayRecords, mockGifts } from '@/src/mockdata/mockdata';
+
 import { format } from 'date-fns';
 import { useDashboardStats } from '@/src/hooks/useDashboard';
 import { BirthdaySpinwheelLoader } from '@/src/component/common/Loader';
@@ -22,9 +22,24 @@ export default function Dashboard() {
   //   return empBday === todayStr;
   // });
 
-  const pendingEmails = mockBirthdayRecords.filter(r => !r.emailSent && r.year === today.getFullYear()).length;
-  const completedSpins = mockBirthdayRecords.filter(r => r.spinCompleted).length;
-  const availableGifts = mockGifts.filter(g => g.available).length;
+ // Prepare a set of today's birthday employee IDs
+const todayBirthdayIds = new Set(
+  data?.todayBirthdays?.map((emp: any) => emp.id) || []
+);
+
+// Filter recent gifts: only today's birthday employees, received gift within 24h
+const recentGiftToday = data?.recentGiftActivity
+  ?.filter((r: any) => {
+    if (!r.giftReceived) return false; // must have received a gift
+    if (!todayBirthdayIds.has(r.employee.id)) return false; // must be birthday today
+
+    const receivedAt = new Date(r.giftReceivedAt);
+    const now = new Date();
+
+    // keep only if gift was received in the last 24 hours
+    return now.getTime() - receivedAt.getTime() <= 1000 * 60 * 60 * 24;
+  })
+  .slice(0, 5); // show top 5
 
   return (
     <DashboardLayout>
@@ -82,7 +97,7 @@ export default function Dashboard() {
           {data?.todayBirthdays?.length > 0 ? (
             <div className="space-y-3">
               {data.todayBirthdays.map((emp:any) => {
-                const record = mockBirthdayRecords.find(r => r.employeeId === emp.id && r.year === today.getFullYear());
+                const record = data?.birthdayRecords?.find( (r: any) => r.employeeId === emp.id && r.year === today.getFullYear());
                 return (
                   <div key={emp.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                     <div className="flex items-center gap-3">
@@ -124,7 +139,7 @@ export default function Dashboard() {
             <h3 className="font-semibold text-foreground">Recent Gift Activity</h3>
           </div>
           
-          <div className="space-y-3">
+          {/* <div className="space-y-3">
             {data?.recentGiftActivity?.filter((r: any) => r.giftReceived).slice(0, 5).map((record: any) => (
               <div key={record.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                 <div className="flex items-center gap-3">
@@ -143,7 +158,38 @@ export default function Dashboard() {
                 </span>
               </div>
             ))}
+          </div> */}
+
+          <div className="space-y-3">
+  {recentGiftToday && recentGiftToday.length > 0 ? (
+    recentGiftToday.map((record: any) => (
+      <div
+        key={record.id}
+        className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
+            <CheckCircle className="w-5 h-5 text-success" />
           </div>
+          <div>
+            <p className="font-medium text-foreground">{record.employee.name}</p>
+            <p className="text-sm text-muted-foreground">
+              Received: {record.giftReceived?.name || 'Gift'}
+            </p>
+          </div>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {record.giftReceivedAt &&
+            format(new Date(record.giftReceivedAt), 'MMM d, HH:mm')}
+        </span>
+      </div>
+    ))
+  ) : (
+    <p className="text-muted-foreground text-center py-8">
+      No recent gifts for today's birthdays
+    </p>
+  )}
+</div>
         </div>
       </div>
       </>

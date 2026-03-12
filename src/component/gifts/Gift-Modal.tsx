@@ -25,42 +25,42 @@ interface GiftModalProps {
   onOpenChange: (open: boolean) => void;
   gift: Gift | null;
   onSave: (gift: Omit<Gift, 'id'>) => void;
-  categories: string[];
+  // categories: string[];
 }
 
 const initialFormData = {
   name: '',
   quantity: 1,
-  category: '',
+  // category: '',
   available: true,
 };
 
-export function GiftModal({ open, onOpenChange, gift, onSave, categories }: GiftModalProps) {
+export function GiftModal({ open, onOpenChange, gift, onSave,  }: GiftModalProps) {
   const [formData, setFormData] = useState(initialFormData);
-  const [newCategory, setNewCategory] = useState('');
-  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  // const [newCategory, setNewCategory] = useState('');
+  // const [isAddingCategory, setIsAddingCategory] = useState(false);
 
   useEffect(() => {
     if (gift) {
       setFormData({
         name: gift.name,
         quantity: gift.quantity,
-        category: gift.category,
+        // category: gift.category,
         available: gift.available,
       });
     } else {
       setFormData(initialFormData);
     }
-    setIsAddingCategory(false);
-    setNewCategory('');
+    // setIsAddingCategory(false);
+    // setNewCategory('');
   }, [gift, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const categoryToUse = isAddingCategory && newCategory ? newCategory : formData.category;
+    // const categoryToUse = isAddingCategory && newCategory ? newCategory : formData.category;
     onSave({
       ...formData,
-      category: categoryToUse,
+      // category: categoryToUse,
     });
   };
 
@@ -107,7 +107,7 @@ export function GiftModal({ open, onOpenChange, gift, onSave, categories }: Gift
             />
           </div>
 
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="category">Category</Label>
               <Button
@@ -144,7 +144,7 @@ export function GiftModal({ open, onOpenChange, gift, onSave, categories }: Gift
                 </SelectContent>
               </Select>
             )}
-          </div>
+          </div> */}
 
           <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
             <div>

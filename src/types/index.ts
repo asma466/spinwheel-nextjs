@@ -6,27 +6,31 @@ export interface Employee {
   // position: string;
   // dateOfBirth: string;
   dob: string;
+  role: string;
+  password?: string; 
   // joinDate: string;
   // phone: string;
   avatar?: string;
 }
 
 export interface Gift {
-  id: string;
+  id: number;
   name: string;
   quantity: number;
   available: boolean;
   imageUrl?: string;
-  category: string;
+  // category: string;
 }
 
 export interface BirthdayRecord {
-  id: string;
+  id: number;
   employeeId: number;
   employee: Employee;
   date: string;
   emailSent: boolean;
   emailSentAt?: string;
+  spinToken: string;
+  tokenExpiresAt: string;
   giftReceived?: Gift;
   giftReceivedAt?: string;
   spinCompleted: boolean;
@@ -40,8 +44,8 @@ export interface GiftHistory {
 }
 
 export interface User {
-  id: string;
+  id: number;
   email: string;
   name: string;
-  role: 'admin' | 'hr';
+  role: 'ADMIN' | 'USER';
 }

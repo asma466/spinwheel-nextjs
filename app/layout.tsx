@@ -1,9 +1,12 @@
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import ReactQueryProvider from "@/src/component/provider/QueryProvider";
-import { Toaster } from "sonner";
+// import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+// import ReactQueryProvider from "@/src/component/provider/QueryProvider";
+// import { Toaster } from "sonner";
+// import { SessionProvider } from "next-auth/react";
+import ClientProviders from "@/src/component/provider/QueryProvider";
 
 // import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -34,12 +37,16 @@ export default function RootLayout({
        suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* <SessionProvider>
         <ReactQueryProvider>
           {children}
 
           <Toaster richColors position="top-right" />
         </ReactQueryProvider>
-       
+       </SessionProvider> */}
+        <ClientProviders>
+          {children}
+        </ClientProviders>
       </body>
     </html>
   );
