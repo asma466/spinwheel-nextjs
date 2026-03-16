@@ -55,8 +55,8 @@ export const useCreateGift = () => {
     },
 
     onSuccess: (newGift) => {
-      queryClient.setQueryData<Gift[]>(['gifts'], (old = []) => [
-        ...old,
+      queryClient.setQueryData<Gift[]>(['gifts'], (old) => [
+        ...(old || []),
         newGift,
       ])
     },
@@ -73,7 +73,7 @@ export const useUpdateGift = () => {
   return useMutation<
     Gift,
     Error,
-    { id: string; giftData: Omit<Gift, 'id'> }
+    { id: number; giftData: Omit<Gift, 'id'> }
   >({
     mutationFn: async ({ id, giftData }) => {
       const { data } = await api.put<ApiResponse<Gift>>(
@@ -89,8 +89,8 @@ export const useUpdateGift = () => {
     },
 
     onSuccess: (updatedGift) => {
-      queryClient.setQueryData<Gift[]>(['gifts'], (old = []) =>
-        old.map((g) =>
+      queryClient.setQueryData<Gift[]>(['gifts'], (old) =>
+        (old || []).map((g) =>
           g.id === updatedGift.id ? updatedGift : g
         )
       )
@@ -105,7 +105,7 @@ export const useUpdateGift = () => {
 export const useDeleteGift = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<string, Error, string>({
+  return useMutation<number, Error, number>({
     mutationFn: async (id) => {
       const { data } = await api.delete<ApiResponse<null>>(
         `/gifts/${id}`
@@ -119,8 +119,8 @@ export const useDeleteGift = () => {
     },
 
     onSuccess: (id) => {
-      queryClient.setQueryData<Gift[]>(['gifts'], (old = []) =>
-        old.filter((g) => g.id !== id)
+      queryClient.setQueryData<Gift[]>(['gifts'], (old) =>
+        (old || []).filter((g) => g.id !== id)
       )
     },
   })
