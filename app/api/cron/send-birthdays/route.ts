@@ -19,27 +19,35 @@ export async function GET(req: Request) {
     // 2. Filter employees whose birthday is today (ignoring year and timezones)
     const todayString = `${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
+    let emailsSentCount = 0;
+    const errors: any[] = [];
     const birthdayEmployees = employees.filter(emp => {
       if (!emp.dob) return false;
-      
+
       // Some DBs return string, some return Date object. Ensure it's a date.
       const dobDate = new Date(emp.dob);
       if (isNaN(dobDate.getTime())) return false;
 
       // Extract month and day (UTC or Local can be tricky, let's use the raw string if possible, or UTC as fallback)
-      const empMonth = String(dobDate.getUTCMonth() + 1).padStart(2, '0');
-      const empDay = String(dobDate.getUTCDate()).padStart(2, '0');
+      // const empMonth = String(dobDate.getUTCMonth() + 1).padStart(2, '0');
+      // const empDay = String(dobDate.getUTCDate()).padStart(2, '0');
+      const empMonth = String(dobDate.getMonth() + 1).padStart(2, '0');
+      const empDay = String(dobDate.getDate()).padStart(2, '0');
       const empDobString = `${empMonth}-${empDay}`;
-      
-      console.log(`[CRON-DEBUG] Checking employee: ${emp.name} | DB DOB: ${emp.dob} | Parsed: ${empDobString} | Expected: ${todayString}`);
-      
+
+      const debugInfo = `Checking employee: ${emp.name} | DB DOB: ${emp.dob} | Parsed: ${empDobString} | Expected: ${todayString}`;
+      console.log(`[CRON-DEBUG] ${debugInfo}`);
+
+      if (emp.name.toLowerCase().includes('asma')) {
+        errors.push({ type: 'debug', info: debugInfo });
+      }
+
       return empDobString === todayString;
     });
 
     console.log(`[CRON] Today is ${todayString}. Found ${birthdayEmployees.length} employees with a birthday today.`);
 
-    let emailsSentCount = 0;
-    const errors = [];
+
 
     // 3. Process each birthday employee
     for (const emp of birthdayEmployees) {
@@ -75,7 +83,7 @@ export async function GET(req: Request) {
 
         // Send Email
         await sendBirthdayGreetingEmail(emp.name, emp.email, record.id);
-        
+
         console.log(`[CRON] ✅ Successfully sent birthday email to ${emp.name} (${emp.email})`);
         emailsSentCount++;
 

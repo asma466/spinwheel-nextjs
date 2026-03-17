@@ -11,37 +11,93 @@
  * 3. Make sure to run `pm2 save` so it starts on system boot.
  */
 
-const cron = require('node-cron');
-const http = require('http'); // or 'https' if your local server uses HTTPS
+// const cron = require('node-cron');
+// const http = require('http'); // or 'https' if your local server uses HTTPS
 
-// The URL to your Next.js API route that handles the actual birthday logic
+// // The URL to your Next.js API route that handles the actual birthday logic
+// const TARGET_URL = 'http://localhost:3000/api/cron/send-birthdays';
+
+// // Set the time you want the cron job to run every day. 
+// // Format: "Minute Hour * * *"
+// // "0 10 * * *" means 10:00 AM every day
+// const CRON_SCHEDULE = '* * * * *';
+
+// console.log(`[Standalone Cron] Service started. Scheduled to ping ${TARGET_URL} at schedule: "${CRON_SCHEDULE}"`);
+
+// cron.schedule(CRON_SCHEDULE, () => {
+//     console.log(`[Standalone Cron] Triggering birthday job at ${new Date().toISOString()}`);
+
+//     http.get(TARGET_URL, (res) => {
+//         let data = '';
+
+//         // A chunk of data has been received.
+//         res.on('data', (chunk) => {
+//             data += chunk;
+//         });
+
+//         // The whole response has been received.
+//         res.on('end', () => {
+//             console.log(`[Standalone Cron] Next.js Server Response: ${data}`);
+//         });
+
+//     }).on("error", (err) => {
+//         console.error(`[Standalone Cron] ❌ Error triggering Next.js job: ${err.message}`);
+//         console.error(`Make sure your Next.js server is actively running on port 3000!`);
+//     });
+// });
+
+
+/**
+ * standalone_cron.js
+ * Fully working debug version
+ */
+
+const cron = require('node-cron');
+const http = require('http');
+
 const TARGET_URL = 'http://localhost:3000/api/cron/send-birthdays';
 
-// Set the time you want the cron job to run every day. 
-// Format: "Minute Hour * * *"
-// "0 10 * * *" means 10:00 AM every day
-const CRON_SCHEDULE = '20 11 * * *';
+// 🔥 Run every minute for testing
+const CRON_SCHEDULE = '* * * * *';
 
-console.log(`[Standalone Cron] Service started. Scheduled to ping ${TARGET_URL} at schedule: "${CRON_SCHEDULE}"`);
+console.log("🚀 Script started...");
+console.log(`[Cron] Will hit: ${TARGET_URL}`);
+console.log(`[Cron] Schedule: ${CRON_SCHEDULE}`);
 
-cron.schedule(CRON_SCHEDULE, () => {
-    console.log(`[Standalone Cron] Triggering birthday job at ${new Date().toISOString()}`);
+// ✅ Function to call API
+function triggerApi() {
+    console.log(`\n🔥 [Cron] Triggering at ${new Date().toLocaleString()}`);
 
     http.get(TARGET_URL, (res) => {
         let data = '';
 
-        // A chunk of data has been received.
         res.on('data', (chunk) => {
             data += chunk;
         });
 
-        // The whole response has been received.
         res.on('end', () => {
-            console.log(`[Standalone Cron] Next.js Server Response: ${data}`);
+            console.log(`✅ [Cron] API Response: ${data}`);
         });
 
     }).on("error", (err) => {
-        console.error(`[Standalone Cron] ❌ Error triggering Next.js job: ${err.message}`);
-        console.error(`Make sure your Next.js server is actively running on port 3000!`);
+        console.error(`❌ [Cron] Error: ${err.message}`);
+        console.error("👉 Make sure Next.js server is running on port 3000");
     });
+}
+
+// ✅ Schedule cron job
+cron.schedule(CRON_SCHEDULE, () => {
+    console.log("⏰ Cron fired!");
+    triggerApi();
+}, {
+    timezone: "Asia/Karachi"
 });
+
+// ✅ 🔥 MANUAL TRIGGER (runs immediately on start)
+console.log("⚡ Running first trigger manually...");
+triggerApi();
+
+// ✅ Keep process alive check
+setInterval(() => {
+    console.log("💓 Cron still running...");
+}, 60000);

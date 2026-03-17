@@ -6,8 +6,11 @@ import { Badge } from '@radix-ui/themes';
 import { Toast } from '@/src/component/common/Toast';
 import WheelComponent from '@/src/component/common/wheelanimation';
 import Confetti from 'react-confetti';
+import { useSearchParams } from 'next/navigation';
 
 export default function BirthdaySpinPage() {
+  const searchParams = useSearchParams(); // ✅ call hook here
+  const recordId = searchParams.get('x'); // ✅ get recordId from URL
   const segments = [
     'Planter',
     'Scented Candles',
