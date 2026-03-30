@@ -39,7 +39,8 @@ export async function POST(request: NextRequest) {
     const gift = await prisma.gift.create({
       data: {
         name,
-        quantity: parseInt(quantity),
+        // quantity: parseInt(quantity),
+         quantity: Number(quantity),
         available: available ?? true,
       },
     });

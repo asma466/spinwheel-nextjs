@@ -62,7 +62,7 @@
 //             {employee ? 'Edit Employee' : 'Add New Employee'}
 //           </DialogTitle>
 //         </DialogHeader>
-        
+
 //         <form onSubmit={handleSubmit} className="space-y-4">
 //           <div className="grid grid-cols-2 gap-4">
 //             <div className="col-span-2 space-y-2">
@@ -181,6 +181,7 @@ import {
   useCreateEmployee,
   useUpdateEmployee,
 } from "@/src/hooks/useEmployeeAPI";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
 interface EmployeeModalProps {
@@ -194,7 +195,7 @@ export const EmployeeModal = ({
   onOpenChange,
   employee,
 }: EmployeeModalProps) => {
-  
+
   const { formData, handleChange } = useEmployeeForm(employee);
 
   const { mutateAsync: createEmployee, isPending: isCreating } =
@@ -242,13 +243,13 @@ export const EmployeeModal = ({
   // };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // ✅ Check if user is logged in
-  // const { data: session } = useSession();
+    // ✅ Check if user is logged in
+    // const { data: session } = useSession();
 
 
-   // ADMIN password validation
+    // ADMIN password validation
     if (formData.role === "ADMIN" && !formData.password && !employee) {
       alert("Password is required for Admin");
       return;
@@ -264,13 +265,13 @@ export const EmployeeModal = ({
     } catch (err: any) {
       alert(err?.response?.data?.message || "Error creating employee");
     }
-};
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card max-w-md">
+      <DialogContent className="bg-card max-w-md  border border-transparent shadow-xl">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-[#CE1B22]">
             {employee ? "Edit Employee" : "Add New Employee"}
           </DialogTitle>
         </DialogHeader>
@@ -325,20 +326,45 @@ export const EmployeeModal = ({
                 required
               />
             </div>
-        {/* Role */}
-            <div className="col-span-2 space-y-2">
+            {/* Role */}
+            {/* <div className="col-span-2 space-y-2">
               <Label htmlFor="role">Role</Label>
               <select
                 id="role"
                 value={formData.role}
                 onChange={(e) => handleChange("role", e.target.value)}
-                className="w-full border rounded-md px-3 py-2 bg-background"
-                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white 
+             focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
               >
                 <option value="">Select Role</option>
                 <option value="ADMIN">Admin</option>
                 <option value="USER">User</option>
               </select>
+            </div> */}
+
+
+            {/* Role */}
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="role">Role</Label>
+
+              <Select
+                value={formData.role}
+                onValueChange={(value) => handleChange("role", value)}
+              >
+                <SelectTrigger className="w-full border border-gray-300">
+                  <SelectValue placeholder="Select Role" />
+                </SelectTrigger>
+
+                {/* ✅ THIS is where your class goes */}
+                <SelectContent className="hover:text-[#CE1B22]">
+                  <SelectItem value="ADMIN" >
+                    Admin
+                  </SelectItem>
+                  <SelectItem value="USER" >
+                    User
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Password (Only if ADMIN) */}
@@ -370,14 +396,15 @@ export const EmployeeModal = ({
 
             <Button
               type="submit"
-              className="btn-primary"
+              // className="btn-primary"
+              className="bg-[#CE1B22] hover:bg-[#CE1B22]"
               disabled={isSubmitting}
             >
               {isSubmitting
                 ? "Saving..."
                 : employee
-                ? "Save Changes"
-                : "Add Employee"}
+                  ? "Save Changes"
+                  : "Add Employee"}
             </Button>
           </div>
         </form>

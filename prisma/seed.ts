@@ -7,12 +7,12 @@ const main = async () => {
 
   // Seed gifts
   const gifts = [
-    { name: 'Planter', category: 'Plants' },
-    { name: 'Scented Candles', category: 'Home' },
-    { name: 'Fidget Toys', category: 'Toys' },
-    { name: 'Vase', category: 'Home' },
-    { name: 'Table Lamp', category: 'Furniture' },
-    { name: 'Photo Frame', category: 'Decor' },
+    { name: 'Planter' },
+    { name: 'Scented Candles' },
+    { name: 'Fidget Toys' },
+    { name: 'Vase' },
+    { name: 'Table Lamp' },
+    { name: 'Photo Frame' },
   ];
 
   for (const gift of gifts) {
@@ -24,7 +24,7 @@ const main = async () => {
       await prisma.gift.create({
         data: {
           name: gift.name,
-          category: gift.category,
+          // category: gift.category,
           quantity: 10,
           available: true,
         },

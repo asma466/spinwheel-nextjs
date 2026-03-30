@@ -426,6 +426,7 @@ import { useDebounce } from "@/src/hooks/useDebounce";
 
 import { AppButton } from "@/src/component/common/AppButton";
 import { EmployeeModal } from "@/src/component/employees/Employee-Modal";
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 
 
 export default function Employees() {
@@ -542,7 +543,7 @@ export default function Employees() {
         <>
           <DataTable data={employees} columns={columns} />
 
-          <div className="flex justify-between items-center mt-6">
+          {/* <div className="flex justify-end items-center mt-6">
             <Button
               disabled={page === 1}
               onClick={() => setPage((prev) => prev - 1)}
@@ -560,7 +561,113 @@ export default function Employees() {
             >
               Next
             </Button>
-          </div>
+          </div> */}
+
+          {/* <div className="flex justify-end mt-6">
+  <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl shadow-md px-3 py-2">
+
+    <Button
+      size="sm"
+      variant="ghost"
+      disabled={page === 1}
+      onClick={() => setPage((prev) => prev - 1)}
+    >
+      ←
+    </Button>
+
+    {[...Array(meta?.totalPages || 1)].map((_, i) => {
+      const pageNumber = i + 1;
+      return (
+        <button
+          key={pageNumber}
+          onClick={() => setPage(pageNumber)}
+          className={`px-3 py-1 text-sm rounded-md transition
+            ${
+              page === pageNumber
+                ? "bg-black text-white"
+                : "hover:bg-gray-100 text-gray-600"
+            }`}
+        >
+          {pageNumber}
+        </button>
+      );
+    })}
+
+    <Button
+      size="sm"
+      variant="ghost"
+      disabled={page === meta?.totalPages}
+      onClick={() => setPage((prev) => prev + 1)}
+    >
+      →
+    </Button>
+  </div>
+</div> */}
+
+  {/* Shadcn Pagination */}
+      {/* Shadcn Pagination */}
+<div className="flex justify-end mt-6">
+  <Pagination>
+    <PaginationContent>
+      {/* Previous */}
+      <PaginationItem>
+        <PaginationPrevious
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            if (page === 1) return;
+            setPage(page - 1);
+          }}
+          className={page === 1 ? "pointer-events-none opacity-50" : ""}
+        />
+      </PaginationItem>
+
+      {/* Page Numbers */}
+      {[...Array(meta?.totalPages || 1)].map((_, i) => {
+        const pageNumber = i + 1;
+
+        return (
+          <PaginationItem key={pageNumber}>
+            <PaginationLink
+              href="#"
+              isActive={page === pageNumber}
+              onClick={(e) => {
+                e.preventDefault();
+                setPage(pageNumber);
+              }}
+            >
+              {pageNumber}
+            </PaginationLink>
+          </PaginationItem>
+        );
+      })}
+
+      {/* Optional Ellipsis (only visual, not functional here) */}
+      {meta?.totalPages && meta.totalPages > 5 && (
+        <PaginationItem>
+          <PaginationEllipsis />
+        </PaginationItem>
+      )}
+
+      {/* Next */}
+      <PaginationItem>
+        <PaginationNext
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            if (page === meta?.totalPages) return;
+            setPage(page + 1);
+          }}
+          className={
+            page === meta?.totalPages
+              ? "pointer-events-none opacity-50"
+              : ""
+          }
+        />
+      </PaginationItem>
+    </PaginationContent>
+  </Pagination>
+</div>
         </>
       ) : (
         <EmptyState

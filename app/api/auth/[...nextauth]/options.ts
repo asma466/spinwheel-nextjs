@@ -236,7 +236,7 @@ export const authOptions: NextAuthOptions = {
         if (!user) throw new Error("User not found");
 
         // Make sure role is always a string
-        const role = user.role ?? "USER";
+     const role = (user.role ?? "USER").toUpperCase();
         const name = user.name ?? "";
 
         // Admin login must have password

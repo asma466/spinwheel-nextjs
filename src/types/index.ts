@@ -19,7 +19,7 @@ export interface Gift {
   quantity: number;
   available: boolean;
   imageUrl?: string;
-  // category: string;
+  
 }
 
 export interface BirthdayRecord {

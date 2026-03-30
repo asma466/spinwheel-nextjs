@@ -12,55 +12,46 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 interface GiftModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   gift: Gift | null;
   onSave: (gift: Omit<Gift, 'id'>) => void;
-  // categories: string[];
+  
 }
 
 const initialFormData = {
   name: '',
   quantity: 1,
-  // category: '',
+ 
   available: true,
 };
 
 export function GiftModal({ open, onOpenChange, gift, onSave,  }: GiftModalProps) {
   const [formData, setFormData] = useState(initialFormData);
-  // const [newCategory, setNewCategory] = useState('');
-  // const [isAddingCategory, setIsAddingCategory] = useState(false);
+
 
   useEffect(() => {
     if (gift) {
       setFormData({
         name: gift.name,
         quantity: gift.quantity,
-        // category: gift.category,
+       
         available: gift.available,
       });
     } else {
       setFormData(initialFormData);
     }
-    // setIsAddingCategory(false);
-    // setNewCategory('');
+
   }, [gift, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // const categoryToUse = isAddingCategory && newCategory ? newCategory : formData.category;
+    
     onSave({
       ...formData,
-      // category: categoryToUse,
+     
     });
   };
 

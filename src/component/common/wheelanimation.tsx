@@ -64,56 +64,25 @@ const WheelComponent = ({
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const searchParams = new URLSearchParams(window.location.search);
-      const id = searchParams.get('x');
-      
-      console.log(`[WHEEL COMPONENT] URL search params:`, searchParams.toString());
-      console.log(`[WHEEL COMPONENT] ID from URL (x param):`, id);
-      
-      // Only proceed if ID is available
-      if (!id) {
-        console.warn('[WHEEL COMPONENT] No birthday record ID provided. Use ?x=recordId');
-        wheelInit();
-        return;
-      }
+    const searchParams = new URLSearchParams(window.location.search);
+    const id = searchParams.get('x');
 
+    console.log(`[WHEEL COMPONENT] URL search params:`, searchParams.toString());
+    console.log(`[WHEEL COMPONENT] ID from URL (x param):`, id);
+
+    // Only proceed if ID is available
+    if (!id) {
+      console.warn('[WHEEL COMPONENT] No birthday record ID provided. Use ?x=recordId');
+    } else {
       tenstringid = id;
       console.log(`[WHEEL COMPONENT] Set tenstringid to:`, tenstringid);
+    }
 
-      try {
-        console.log(`[WHEEL COMPONENT] Sending request to /api/spinwheel with id:`, id);
-        const response = await axios.post('/api/spinwheel', {
-          id: id, // Send as string first, API will parse it
-        });
+    wheelInit();
 
-        const data = response.data;
-        console.log(`[WHEEL COMPONENT] Received response:`, data);
-
-        if (data.prize) {
-          prize = data.prize.trim();
-          console.log(`[WHEEL COMPONENT] Prize set to:`, prize);
-        }
-      } catch (error: any) {
-        console.error('[WHEEL COMPONENT] Error fetching data:', error);
-        if (error.response?.status === 403) {
-          console.warn('[WHEEL COMPONENT] ⚠️ You have already spun the wheel');
-          alert('You have already spun the wheel this year. Come back next year!');
-        } else if (error.response?.status === 404) {
-          console.error('[WHEEL COMPONENT] ❌ Birthday record not found');
-          alert('Birthday record not found');
-        }
-        // Still initialize wheel even if fetch fails
-      }
-
-      wheelInit();
-
-      setTimeout(() => {
-        window.scrollTo(0, 1);
-      }, 0);
-    };
-
-    fetchData();
+    setTimeout(() => {
+      window.scrollTo(0, 1);
+    }, 0);
   }, []);
 
   const initCanvas = () => {
@@ -132,16 +101,57 @@ const WheelComponent = ({
     canvasContext = canvas?.getContext('2d');
   };
 
-  const spin = () => {
-    console.log(prize);
+  const spin = async () => {
+    if (isStarted) return; // Prevent double clicks
+    isStarted = true; // Lock immediately to prevent duplicate React Strict Mode click listeners
+
+    try {
+      console.log(`[WHEEL COMPONENT] Requesting spin for id:`, tenstringid);
+      const response = await axios.post('/api/spinwheel', {
+        id: tenstringid,
+      });
+
+      const data = response.data;
+      console.log(`[WHEEL COMPONENT] Received response:`, data);
+
+      if (data.alreadySpun) {
+        console.warn('[WHEEL COMPONENT] ⚠️ You have already spun the wheel');
+        alert('You have already spun the wheel this year. Come back next year!');
+        setOpenSnackbar(true);
+        if (data.prize) {
+          // Already spun, so fake finish with old prize
+          onFinished(data.prize);
+        }
+        return;
+      }
+
+      if (data.prize) {
+        prize = data.prize.trim();
+        console.log(`[WHEEL COMPONENT] Prize set to:`, prize);
+      }
+    } catch (error: any) {
+      isStarted = false; // unlock on error
+      console.error('[WHEEL COMPONENT] Error fetching data:', error);
+
+      const errorMessage = error.response?.data?.error;
+
+      if (error.response?.status === 404) {
+        console.error('[WHEEL COMPONENT] ❌ Birthday record not found');
+        alert('Birthday record not found');
+        return;
+      }
+      // else if (errorMessage === 'No gifts available') {
+      //   alert('All gifts are currently out of stock!');
+      //   setOpenSnackbar(true);
+      //   return;
+      // } 
+      else {
+        setOpenSnackbar(true);
+        return;
+      }
+    }
 
     if (prize) {
-      // Note: Send prize in finish API call
-      axios.post('/api/finish', {
-        id: parseInt(tenstringid || '0'),
-        prize: prize,
-      });
-      isStarted = true;
       if (timerHandle === 0) {
         spinStart = new Date().getTime();
         maxSpeed = Math.PI / segments.length;
@@ -166,29 +176,42 @@ const WheelComponent = ({
     } else {
       if (prize) {
         if (currentSegment === prize && frames > segments.length) {
+          // We found our target! Start slowing down rapidly to stop inside it.
           progress = duration / upTime;
-          angleDelta =
-            maxSpeed * Math.sin((progress * Math.PI) / 2 + Math.PI / 2);
-          progress = 1;
+          angleDelta = 0; // stop immediately to avoid overshooting
+          progress = 1; // force finish
         } else {
           progress = duration / downTime;
-          angleDelta =
-            maxSpeed * Math.sin((progress * Math.PI) / 2 + Math.PI / 2);
+          // Keep spinning until we hit the prize
+          angleDelta = maxSpeed * Math.sin((progress * Math.PI) / 2 + Math.PI / 2);
+          if (angleDelta < 0.02) angleDelta = 0.05; // maintain minimum speed so we don't get stuck forever
         }
       } else {
         progress = duration / downTime;
         angleDelta =
           maxSpeed * Math.sin((progress * Math.PI) / 2 + Math.PI / 2);
       }
-      if (progress >= 1) finished = true;
+      if (progress >= 1 && !prize) finished = true;
+      if (progress >= 1 && prize && currentSegment === prize) finished = true;
     }
 
     angleCurrent += angleDelta;
     while (angleCurrent >= Math.PI * 2) angleCurrent -= Math.PI * 2;
     if (finished) {
+      // API call to finish the process has been moved here!
+      if (prize && tenstringid) {
+        axios.post('/api/finish', {
+          id: parseInt(tenstringid || '0'),
+          prize: prize,
+        }).catch(err => console.error(err));
+      }
+
+      const finalPrize = prize; // Keep a local reference
       prize = null;
       setFinished(true);
-      onFinished(currentSegment);
+      if (finalPrize) {
+        onFinished(finalPrize); // <--- Use backend source of truth!!
+      }
       clearInterval(timerHandle);
       timerHandle = 0;
       angleDelta = 0;

@@ -79,11 +79,11 @@ export function useEmailStats() {
 
   const stats = {
     total: emailLogs.length,
-    sent: emailLogs.filter((log) => log.status === 'sent').length,
-    failed: emailLogs.filter((log) => log.status === 'failed').length,
-    pending: emailLogs.filter((log) => log.status === 'pending').length,
+    sent: emailLogs.filter((log: EmailLog) => log.status === 'sent').length,
+    failed: emailLogs.filter((log: EmailLog) => log.status === 'failed').length,
+    pending: emailLogs.filter((log: EmailLog) => log.status === 'pending').length,
     successRate: emailLogs.length > 0
-      ? ((emailLogs.filter((log) => log.status === 'sent').length / emailLogs.length) * 100).toFixed(1)
+      ? ((emailLogs.filter((log: EmailLog) => log.status === 'sent').length / emailLogs.length) * 100).toFixed(1)
       : 0,
   };
 

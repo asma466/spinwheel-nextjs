@@ -159,7 +159,15 @@ export async function GET() {
         },
         include: {
           employee: true,
-          giftReceived: true,
+           giftReceived: {
+      select: {
+        id: true,
+        name: true,
+        quantity: true,
+        available: true,
+       
+      },
+    }
         },
         orderBy: {
           giftReceivedAt: "desc",
@@ -172,21 +180,19 @@ export async function GET() {
     const todayBirthdays = employeesWithDob.filter((emp) => {
       const dob = new Date(emp.dob);
 
-        // 👇 ADD LOG HERE
-  console.log({
-    employee: emp.name,
-    todayUTC: today.toISOString(),
-    dobUTC: dob.toISOString(),
-    dobMonthUTC: dob.getUTCMonth(),
-    dobDateUTC: dob.getUTCDate(),
-    todayMonthUTC: today.getUTCMonth(),
-    todayDateUTC: today.getUTCDate(),
-  });
-
       return (
         dob.getUTCMonth() === today.getUTCMonth() &&
         dob.getUTCDate() === today.getUTCDate()
       );
+    });
+
+    const todayBirthdayIds = todayBirthdays.map((emp) => emp.id);
+
+    const birthdayRecords = await prisma.birthdayRecord.findMany({
+      where: {
+        employeeId: { in: todayBirthdayIds },
+        year: today.getUTCFullYear(),
+      },
     });
 
     return NextResponse.json({
@@ -196,6 +202,7 @@ export async function GET() {
       todayBirthdays,
       pendingEmails,
       recentGiftActivity,
+      birthdayRecords,
     });
   } catch (error) {
     console.error("Dashboard Error:", error);

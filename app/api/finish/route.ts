@@ -17,8 +17,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const recordId = parseInt(id); // Parse id once
+
     const birthdayRecord = await prisma.birthdayRecord.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: recordId },
       include: {
         employee: true,
         giftReceived: true,
@@ -33,39 +35,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (birthdayRecord.spinCompleted) {
-      console.error(`[FINISH API] ❌ Spin already completed for record ${id}`);
-      return NextResponse.json(
-        { error: 'Spin already completed' },
-        { status: 400 }
-      );
-    }
 
-    // Find the gift by name
-    let giftId: number | null = null;
-    if (prize) {
-      const gift = await prisma.gift.findFirst({
-        where: {
-          name: prize,
-        },
-      });
-
-      if (gift) {
-        giftId = gift.id;
-        console.log(`[FINISH API] Found gift: ${gift.name} (ID: ${gift.id})`);
-      } else {
-        console.warn(`[FINISH API] ⚠️ Gift not found in database: ${prize}`);
-      }
-    }
-
-    // Update birthday record to mark spin as completed and store gift
+    // Wait, since /api/spinwheel already updated this, we don't need to mark spinCompleted here.
+    // However, if giftReceivedId is missing, we can try to fix it, but let's just use it to send email.
     const updatedRecord = await prisma.birthdayRecord.update({
       where: { id: parseInt(id) },
       data: {
-        spinCompleted: true,
         giftReceivedAt: new Date(),
-        // ...(giftId ? { giftReceivedId: giftId } : {}),
-         giftReceivedId: giftId ?? undefined,
       },
       include: {
         employee: true,

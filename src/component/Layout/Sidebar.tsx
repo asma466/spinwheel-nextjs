@@ -6,7 +6,8 @@ import {
   Gift, 
   ChevronLeft,
   ChevronRight,
-  PartyPopper
+  PartyPopper,
+  Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -23,6 +24,8 @@ const navItems = [
   { href: '/employees', icon: Users, label: 'Employees' },
   { href: '/today-birthday', icon: Cake, label: 'Birthdays' },
   { href: '/gifts', icon: Gift, label: 'Gifts' },
+  { href: '/settings', icon: Settings, label: 'Settings' },
+
 ];
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {

@@ -112,13 +112,12 @@ const recentGiftToday = data?.recentGiftActivity
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {record?.emailSent ? (
+                      {record?.spinCompleted ? (
+                        <StatusBadge status="success">Gift Selected</StatusBadge>
+                      ) : record?.emailSent ? (
                         <StatusBadge status="success">Email Sent</StatusBadge>
                       ) : (
                         <StatusBadge status="pending">Pending</StatusBadge>
-                      )}
-                      {record?.spinCompleted && (
-                        <StatusBadge status="success">Gift Selected</StatusBadge>
                       )}
                     </div>
                   </div>
