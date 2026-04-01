@@ -7,6 +7,8 @@ import { AppButton } from "@/src/component/common/AppButton";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { DashboardLayout } from "@/src/component/Layout/DashboardLayout";
+import axios from "axios";
 
 export default function SettingsPage() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -20,172 +22,208 @@ export default function SettingsPage() {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const res = await fetch("/api/change-password", {
-        method: "POST",
-        body: JSON.stringify({ currentPassword, newPassword }),
-      });
+   
+try {
+  const { data } = await axios.post("/api/change-password", {
+    currentPassword,
+    newPassword,
+  });
 
-      const data = await res.json();
+  toast.success(data.message); // Axios already parses JSON
 
-      if (!res.ok) {
-        toast.error(data.error);
-      } else {
-        toast.success("Password updated successfully!");
-        setCurrentPassword("");
-        setNewPassword("");
-          // ✅ FORCE LOGOUT HERE
-  // signOut({ callbackUrl: "/login" });
-  setTimeout(() => {
+  setCurrentPassword("");
+  setNewPassword("");
+
+  // Sign out after update
   signOut({ callbackUrl: "/login" });
-}, 1500);
-      }
-    } catch (err) {
+
+  } catch (error: any) {
+    if (error.response?.data?.error) {
+      toast.error(error.response.data.error);
+    } else {
       toast.error("Something went wrong");
-    } finally {
-      setLoading(false);
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+}; // ✅ YOU MISSED THIS
 
-  // return (
-  //   <div className="p-6 flex justify-center">
-  //     <Card className="w-full max-w-md shadow-xl">
-  //       <CardHeader>
-  //         <CardTitle className="text-xl text-center text-[#CE1B22]">
-  //           Change Password
-  //         </CardTitle>
-  //       </CardHeader>
+const getPasswordStrength = (password: string) => {
+  let score = 0;
 
-  //       <CardContent>
-  //         <form onSubmit={handleChangePassword} className="space-y-4">
+  if (password.length >= 6) score++;
+  if (password.length >= 10) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
 
-  //           {/* Current Password */}
-  //           <div className="relative">
-  //             <Input
-  //               type={showCurrent ? "text" : "password"}
-  //               placeholder="Current Password"
-  //               value={currentPassword}
-  //               onChange={(e) => setCurrentPassword(e.target.value)}
-  //               required
-  //             />
-  //             <button
-  //               type="button"
-  //               onClick={() => setShowCurrent(!showCurrent)}
-  //               className="absolute right-3 top-1/2 -translate-y-1/2"
-  //             >
-  //               {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
-  //             </button>
-  //           </div>
+  if (score <= 2) return { label: "Weak", color: "bg-red-500", width: "33%" };
+  if (score <= 4) return { label: "Medium", color: "bg-yellow-500", width: "66%" };
 
-  //           {/* New Password */}
-  //           <div className="relative">
-  //             <Input
-  //               type={showNew ? "text" : "password"}
-  //               placeholder="New Password"
-  //               value={newPassword}
-  //               onChange={(e) => setNewPassword(e.target.value)}
-  //               required
-  //             />
-  //             <button
-  //               type="button"
-  //               onClick={() => setShowNew(!showNew)}
-  //               className="absolute right-3 top-1/2 -translate-y-1/2"
-  //             >
-  //               {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
-  //             </button>
-  //           </div>
+  return { label: "Strong", color: "bg-green-500", width: "100%" };
+};
 
-  //           <AppButton
-  //             type="submit"
-  //             loading={loading}
-  //             className="w-full bg-[#CE1B22] text-white"
-  //           >
-  //             {loading ? "Updating..." : "Update Password"}
-  //           </AppButton>
+const strength = getPasswordStrength(newPassword);
 
-  //         </form>
-  //       </CardContent>
-  //     </Card>
-  //   </div>
-  // );
+  return (
+    <DashboardLayout>
+      <div className="p-6 space-y-8">
 
+        {/* 🔥 Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight">
+              Settings
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Manage your account security and preferences
+            </p>
+          </div>
+        </div>
 
+        {/* 🔥 Card */}
+        <div className="max-w-lg">
+          <Card className="shadow-md border border-border rounded-2xl">
+            
+            {/* Card Header */}
+            <CardHeader className="flex flex-row items-center gap-3">
+              <div className="p-2 rounded-xl bg-[#CE1B22]/10">
+                {/* <Lock className="w-5 h-5 text-[#CE1B22]" /> */}
+              </div>
+              <div>
+                <CardTitle className="text-lg">
+                  Change Password
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  Keep your account secure by updating your password
+                </p>
+              </div>
+            </CardHeader>
 
-return (
-  <div className="p-6 space-y-6">
+            {/* Card Content */}
+            <CardContent>
+              <form
+                onSubmit={handleChangePassword}
+                className="space-y-5"
+              >
 
-    {/* Page Header */}
-    <div>
-      <h1 className="text-2xl font-bold text-black">Settings</h1>
-      <p className="text-[#7A7A7A] text-sm">
-        Manage your account settings
-      </p>
+                {/* Current Password */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Current Password
+                  </label>
+
+                  <div className="relative">
+                    <Input
+                      type={showCurrent ? "text" : "password"}
+                      placeholder="Enter current password"
+                      value={currentPassword}
+                      onChange={(e) =>
+                        setCurrentPassword(e.target.value)
+                      }
+                      required
+                      className="pr-10 h-11 rounded-xl"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowCurrent(!showCurrent)
+                      }
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-black transition"
+                    >
+                      {showCurrent ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* New Password */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    New Password
+                  </label>
+
+                  <div className="relative">
+                    <Input
+                      type={showNew ? "text" : "password"}
+                      placeholder="Enter new password"
+                      value={newPassword}
+                      onChange={(e) =>
+                        setNewPassword(e.target.value)
+                      }
+                      required
+                      className="pr-10 h-11 rounded-xl"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowNew(!showNew)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-black transition"
+                    >
+                      {showNew ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* 🔥 Password Hint */}
+                  <p className="text-xs text-muted-foreground">
+                    Use at least 6–8 characters for better security
+                  </p>
+                  {/* 🔥 Password Strength Meter */}
+{newPassword && (
+  <div className="space-y-2">
+    
+    {/* Bar */}
+    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div
+        className={`h-full transition-all duration-300 ${strength.color}`}
+        style={{ width: strength.width }}
+      />
     </div>
 
-    {/* Card */}
-    <div className="max-w-md">
-      <Card className="shadow-lg border border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-lg text-[#CE1B22]">
-            Change Password
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <form onSubmit={handleChangePassword} className="space-y-4">
-
-            {/* Current Password */}
-            <div className="relative">
-              <Input
-                type={showCurrent ? "text" : "password"}
-                placeholder="Current Password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                required
-                className="pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowCurrent(!showCurrent)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7A7A7A] hover:text-black"
-              >
-                {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-
-            {/* New Password */}
-            <div className="relative">
-              <Input
-                type={showNew ? "text" : "password"}
-                placeholder="New Password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                className="pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowNew(!showNew)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7A7A7A] hover:text-black"
-              >
-                {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-
-            {/* Button */}
-            <AppButton
-              type="submit"
-              loading={loading}
-              className="w-full bg-[#CE1B22] hover:bg-[#b1191d] text-white"
-            >
-              {loading ? "Updating..." : "Update Password"}
-            </AppButton>
-
-          </form>
-        </CardContent>
-      </Card>
+    {/* Label */}
+    <div className="flex justify-between text-xs">
+      <span className="text-muted-foreground">
+        Password strength
+      </span>
+      <span
+        className={`font-medium ${
+          strength.label === "Weak"
+            ? "text-red-500"
+            : strength.label === "Medium"
+            ? "text-yellow-500"
+            : "text-green-600"
+        }`}
+      >
+        {strength.label}
+      </span>
     </div>
-
   </div>
-);
+)}
+                </div>
+
+                {/* Button */}
+                <AppButton
+                  type="submit"
+                  loading={loading}
+                  className="w-full h-11 rounded-xl bg-[#CE1B22] hover:bg-[#b1191d] text-white font-medium transition"
+                >
+                  {loading ? "Updating..." : "Update Password"}
+                </AppButton>
+
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
 }
+

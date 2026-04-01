@@ -116,7 +116,7 @@ console.log(session?.user?.role);
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
                   className="pl-10"
-                  required
+                  required={true}
                 />
               </div>
             </div>
@@ -153,7 +153,7 @@ console.log(session?.user?.role);
                   onChange={e => setPassword(e.target.value)}
                   disabled={isLoading}
                   className="pl-10 pr-10"
-                  required
+                  required={true}
                 />
                 <button
                   type="button"

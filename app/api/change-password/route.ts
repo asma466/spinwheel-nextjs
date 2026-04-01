@@ -22,36 +22,51 @@ export async function POST(req: Request) {
     const { currentPassword, newPassword } = await req.json();
 
     if (!currentPassword || !newPassword) {
-      return NextResponse.json({ error: "All fields required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "All fields required" },
+        { status: 400 }
+      );
     }
 
-    // 🔍 Find user
+    // 🔥 Use ID instead of email
     const user = await prisma.employee.findUnique({
-      where: { email: session.user.email },
+      where: { id: Number(session.user.id) },
     });
 
     if (!user || !user.password) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
     }
 
-    //  Verify current password
+    // ✅ Verify current password
     const isValid = await bcrypt.compare(currentPassword, user.password);
+
     if (!isValid) {
-      return NextResponse.json({ error: "Incorrect current password" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Incorrect current password" },
+        { status: 400 }
+      );
     }
 
-    //  Hash new password
+    // ✅ Hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // Update password
+    // 🔥 Update using ID
     await prisma.employee.update({
-      where: { email: session.user.email },
+      where: { id: Number(session.user.id) },
       data: { password: hashedPassword },
     });
 
-    return NextResponse.json({ message: "Password updated successfully" });
+    return NextResponse.json({
+      message: "Password updated successfully",
+    });
 
   } catch (error) {
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
