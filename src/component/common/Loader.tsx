@@ -72,86 +72,145 @@
 //   );
 // };
 
+// 'use client';
+
+// import React, { useEffect, useState } from 'react';
+// import { Gift } from 'lucide-react';
+
+// export const BirthdaySpinwheelLoader = () => {
+//   const [sparkles, setSparkles] = useState<{ top: number; left: number; size: number; delay: number }[]>([]);
+
+//   useEffect(() => {
+//     // Generate random sparkles positions for animation
+//     const generated = Array.from({ length: 6 }).map(() => ({
+//       top: Math.random() * 60 + 10,
+//       left: Math.random() * 60 + 10,
+//       size: Math.random() * 4 + 2,
+//       delay: Math.random() * 1.5,
+//     }));
+//     setSparkles(generated);
+//   }, []);
+
+//   return (
+//     <div className="relative flex flex-col items-center justify-center w-32 h-32">
+//       {/* Floating sparkles */}
+//       {sparkles.map((s, idx) => (
+//         <span
+//           key={idx}
+//           className="absolute bg-red-500 rounded-full opacity-70 animate-ping-slow"
+//           style={{
+//             width: `${s.size}px`,
+//             height: `${s.size}px`,
+//             top: `${s.top}%`,
+//             left: `${s.left}%`,
+//             animationDelay: `${s.delay}s`,
+//           }}
+//         />
+//       ))}
+
+//       {/* Gift box */}
+//       <div className="relative w-16 h-16">
+//         <div className="absolute inset-0 rounded-lg bg-gradient-to-tr from-gray-300 to-red-500 shadow-lg transform animate-bounce-slow" />
+
+//         {/* Ribbon shine */}
+//         <div className="absolute top-0 left-1/2 w-1 h-full bg-white/30 rounded animate-shimmer" />
+
+//         <div className="absolute inset-0 flex items-center justify-center">
+//           <Gift className="w-8 h-8 text-white animate-pulse-slow" />
+//         </div>
+//       </div>
+
+//       {/* Loader text */}
+//       <p className="mt-3 text-gray-600 font-medium text-sm animate-pulse-slow">
+//         Loading gifts...
+//       </p>
+
+//       {/* Animations */}
+//       <style jsx>{`
+//         @keyframes bounce-slow {
+//           0%, 100% { transform: translateY(0); }
+//           50% { transform: translateY(-8px); }
+//         }
+//         .animate-bounce-slow { animation: bounce-slow 1.2s ease-in-out infinite; }
+
+//         @keyframes pulse-slow {
+//           0%, 100% { opacity: 0.7; }
+//           50% { opacity: 1; }
+//         }
+//         .animate-pulse-slow { animation: pulse-slow 1.5s ease-in-out infinite; }
+
+//         @keyframes shimmer {
+//           0% { transform: translateX(-100%); }
+//           100% { transform: translateX(100%); }
+//         }
+//         .animate-shimmer { animation: shimmer 1s linear infinite; }
+
+//         @keyframes ping-slow {
+//           0% { transform: scale(0.5); opacity: 0.6; }
+//           50% { transform: scale(1); opacity: 1; }
+//           100% { transform: scale(0.5); opacity: 0.6; }
+//         }
+//         .animate-ping-slow { animation: ping-slow 1.2s ease-in-out infinite; }
+//       `}</style>
+//     </div>
+//   );
+// };
+
+
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Gift } from 'lucide-react';
+interface LoaderProps {
+  size?: 'sm' | 'md' | 'lg';
+  fullScreen?: boolean;
+  message?: string;
+}
 
-export const BirthdaySpinwheelLoader = () => {
-  const [sparkles, setSparkles] = useState<{ top: number; left: number; size: number; delay: number }[]>([]);
+const sizeClasses = {
+  sm: 'w-6 h-6',
+  md: 'w-10 h-10',
+  lg: 'w-16 h-16',
+};
 
-  useEffect(() => {
-    // Generate random sparkles positions for animation
-    const generated = Array.from({ length: 6 }).map(() => ({
-      top: Math.random() * 60 + 10,
-      left: Math.random() * 60 + 10,
-      size: Math.random() * 4 + 2,
-      delay: Math.random() * 1.5,
-    }));
-    setSparkles(generated);
-  }, []);
+export function Loader
+({ size = 'md', fullScreen = false, message }: LoaderProps) {
+  const loaderContent = (
+    <div className="flex flex-col items-center justify-center gap-4">
+      {/* Spinning Circle Loader */}
+      <div className={`${sizeClasses[size]} relative`}>
+        {/* Outer ring */}
+        <div className="absolute inset-0 rounded-full border-4 border-red-200"></div>
 
-  return (
-    <div className="relative flex flex-col items-center justify-center w-32 h-32">
-      {/* Floating sparkles */}
-      {sparkles.map((s, idx) => (
-        <span
-          key={idx}
-          className="absolute bg-red-500 rounded-full opacity-70 animate-ping-slow"
+        {/* Animated ring */}
+        <div
+          className="absolute inset-0 rounded-full border-4 border-transparent border-t-red-600 border-r-red-600"
           style={{
-            width: `${s.size}px`,
-            height: `${s.size}px`,
-            top: `${s.top}%`,
-            left: `${s.left}%`,
-            animationDelay: `${s.delay}s`,
+            animation: 'spin 0.8s linear infinite',
           }}
-        />
-      ))}
+        ></div>
 
-      {/* Gift box */}
-      <div className="relative w-16 h-16">
-        <div className="absolute inset-0 rounded-lg bg-gradient-to-tr from-gray-300 to-red-500 shadow-lg transform animate-bounce-slow" />
-
-        {/* Ribbon shine */}
-        <div className="absolute top-0 left-1/2 w-1 h-full bg-white/30 rounded animate-shimmer" />
-
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Gift className="w-8 h-8 text-white animate-pulse-slow" />
-        </div>
+        {/* Inner animated ring for depth */}
+        <div
+          className="absolute inset-2 rounded-full border-2 border-transparent border-b-red-400"
+          style={{
+            animation: 'spin 1.2s linear infinite reverse',
+          }}
+        ></div>
       </div>
 
-      {/* Loader text */}
-      <p className="mt-3 text-gray-600 font-medium text-sm animate-pulse-slow">
-        Loading gifts...
-      </p>
-
-      {/* Animations */}
-      <style jsx>{`
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
-        }
-        .animate-bounce-slow { animation: bounce-slow 1.2s ease-in-out infinite; }
-
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 0.7; }
-          50% { opacity: 1; }
-        }
-        .animate-pulse-slow { animation: pulse-slow 1.5s ease-in-out infinite; }
-
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-        .animate-shimmer { animation: shimmer 1s linear infinite; }
-
-        @keyframes ping-slow {
-          0% { transform: scale(0.5); opacity: 0.6; }
-          50% { transform: scale(1); opacity: 1; }
-          100% { transform: scale(0.5); opacity: 0.6; }
-        }
-        .animate-ping-slow { animation: ping-slow 1.2s ease-in-out infinite; }
-      `}</style>
+      {/* Loading message */}
+      {message && (
+        <p className="text-sm font-medium text-gray-600 text-center">{message}</p>
+      )}
     </div>
   );
-};
+
+  if (fullScreen) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-50 backdrop-blur-sm">
+        {loaderContent}
+      </div>
+    );
+  }
+
+  return loaderContent;
+}

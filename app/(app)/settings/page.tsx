@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { AppButton } from "@/src/component/common/AppButton";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { DashboardLayout } from "@/src/component/Layout/DashboardLayout";
 import axios from "axios";
+import { PageHeader } from "@/src/component/common/PageHeader";
 
 export default function SettingsPage() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -67,36 +68,36 @@ const strength = getPasswordStrength(newPassword);
 
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-8">
+      <div className="p-6 space-y-1">
 
         {/* 🔥 Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Settings
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Manage your account security and preferences
-            </p>
+        <PageHeader
+  title="Settings" 
+
+/>
+          
           </div>
         </div>
 
         {/* 🔥 Card */}
-        <div className="max-w-lg">
-          <Card className="shadow-md border border-border rounded-2xl">
+      <div className="flex justify-start pt-1">
+          <div className=" w-full max-w-lg ">
+          <Card className="shadow-md   flex justify-center align-center ">
             
             {/* Card Header */}
-            <CardHeader className="flex flex-row items-center gap-3">
+            <CardHeader className="flex flex-row  gap-3">
               <div className="p-2 rounded-xl bg-[#CE1B22]/10">
-                {/* <Lock className="w-5 h-5 text-[#CE1B22]" /> */}
+                <Lock className="w-5 h-5 text-[#CE1B22]"  />
+
+
               </div>
               <div>
                 <CardTitle className="text-lg">
                   Change Password
                 </CardTitle>
-                <p className="text-xs text-muted-foreground">
-                  Keep your account secure by updating your password
-                </p>
+              
               </div>
             </CardHeader>
 
@@ -222,6 +223,7 @@ const strength = getPasswordStrength(newPassword);
             </CardContent>
           </Card>
         </div>
+      </div>
       </div>
     </DashboardLayout>
   );

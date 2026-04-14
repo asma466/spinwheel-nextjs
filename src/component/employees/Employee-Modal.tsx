@@ -182,6 +182,7 @@ import {
   useUpdateEmployee,
 } from "@/src/hooks/useEmployeeAPI";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 
 
 interface EmployeeModalProps {
@@ -249,22 +250,42 @@ export const EmployeeModal = ({
     // const { data: session } = useSession();
 
 
-    // ADMIN password validation
-    if (formData.role === "ADMIN" && !formData.password && !employee) {
-      alert("Password is required for Admin");
-      return;
+    // // ADMIN password validation
+    // if (formData.role === "ADMIN" && !formData.password && !employee) {
+    //   alert("Password is required for Admin");
+    //   return;
+    // }
+
+     // ADMIN password validation
+  if (formData.role === "ADMIN" && !formData.password && !employee) {
+    toast.error("Password is required for Admin");
+    return;
+  }
+
+    // try {
+    //   if (employee) {
+    //     await updateEmployee({ id: employee.id, ...formData });
+    //   } else {
+    //     await createEmployee(formData);
+    //   }
+    //   onOpenChange(false);
+    // } catch (err: any) {
+    //   alert(err?.response?.data?.message || "Error creating employee");
+    // }  
+     try {
+    if (employee) {
+      await updateEmployee({ id: employee.id, ...formData });
+      toast.success("Employee updated successfully ✅");
+    } else {
+      await createEmployee(formData);
+      toast.success("Employee created successfully 🎉");
     }
 
-    try {
-      if (employee) {
-        await updateEmployee({ id: employee.id, ...formData });
-      } else {
-        await createEmployee(formData);
-      }
-      onOpenChange(false);
-    } catch (err: any) {
-      alert(err?.response?.data?.message || "Error creating employee");
-    }
+    onOpenChange(false);
+  } catch (err: any) {
+    toast.error(err?.response?.data?.message || "Something went wrong ❌");
+  }
+
   };
 
   return (

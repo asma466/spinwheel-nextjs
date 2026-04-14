@@ -95,15 +95,13 @@ console.log(session?.user?.role);
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-2">
-          <CardTitle className="text-2xl font-bold text-center"> 🎉 Welcome Back!</CardTitle>
-          <CardDescription className="text-center">
-            Sign in to your account to continue
-          </CardDescription>
+          <CardTitle className="text-2xl text-[#CE1B22] font-heading text-center"> Zeta Technologies</CardTitle>
+          
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-foreground">
+              <label htmlFor="email" className="text-sm font-heading font-bold text-gray-700 ">
                 Email Address
               </label>
               <div className="relative">
@@ -115,7 +113,7 @@ console.log(session?.user?.role);
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
-                  className="pl-10"
+                  className="pl-10 font-heading"
                   required={true}
                 />
               </div>
@@ -142,7 +140,7 @@ console.log(session?.user?.role);
 
  {/* Password with eye toggle */}
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-foreground">Password</label>
+              <label htmlFor="password" className="text-sm font-bold font-heading text-gray-700 ">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -152,7 +150,7 @@ console.log(session?.user?.role);
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   disabled={isLoading}
-                  className="pl-10 pr-10"
+                  className="pl-10 pr-10 font-heading"
                   required={true}
                 />
                 <button

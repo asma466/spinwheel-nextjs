@@ -99,5 +99,5 @@ triggerApi();
 
 // ✅ Keep process alive check
 setInterval(() => {
-    console.log("💓 Cron still running...");
+    console.log(" Cron still running...");
 }, 60000);

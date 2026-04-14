@@ -27,17 +27,17 @@
 // });
 
 
-import next from "next";
-import http from "http";
-import "./src/cron/birthdayCron";
+// import next from "next";
+// import http from "http";
+// import "./src/cron/birthdayCron";
 
-const app = next({ dev: false });
-const handle = app.getRequestHandler();
+// const app = next({ dev: false });
+// const handle = app.getRequestHandler();
 
-app.prepare().then(() => {
-  http.createServer((req, res) => {
-    handle(req, res);
-  }).listen(3000, () => {
-    console.log("Server running on port 3000");
-  });
-});
+// app.prepare().then(() => {
+//   http.createServer((req, res) => {
+//     handle(req, res);
+//   }).listen(3000, () => {
+//     console.log("Server running on port 3000");
+//   });
+// });

@@ -38,6 +38,7 @@ model employee {
   updatedAt      DateTime         @default(now())
   password       String?
   birthdayrecord birthdayrecord[]
+   birthdayEmailSentYear    Int?
 }
 
 model gift {

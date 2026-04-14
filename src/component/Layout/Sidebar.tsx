@@ -32,13 +32,20 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside
-    // 'bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 ease-in-out',
-      className={cn(
-        collapsed ? 'w-16' : 'w-64',
-        'sidebar-container'
-      )}
+  //   <aside
+  //   // 'bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 ease-in-out',
+  //    className={cn(
+  //   collapsed ? 'w-16' : 'w-64',
+  //   'sidebar-container fixed top-0 left-0'
+  // )}
+  <aside
+  className={cn(
+    collapsed ? 'w-16' : 'w-64',
+    'fixed top-0 left-0 h-screen flex flex-col bg-white border-r border-border z-50 transition-all duration-300 ease-in-out'
+  )}
+
     >
+   
       {/* Logo */}
       {/* <div className="h-16 flex items-center px-4 border-b border-sidebar-border">
         <div className="flex items-center gap-3">

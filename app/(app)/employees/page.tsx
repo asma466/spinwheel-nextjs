@@ -427,6 +427,7 @@ import { useDebounce } from "@/src/hooks/useDebounce";
 import { AppButton } from "@/src/component/common/AppButton";
 import { EmployeeModal } from "@/src/component/employees/Employee-Modal";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Loader } from "@/src/component/common/Loader";
 
 
 export default function Employees() {
@@ -534,11 +535,13 @@ export default function Employees() {
             setPage(1);
           }}
           placeholder="Search employees..."
-        />
+        />bitri
       </div>
 
       {isLoading ? (
-        <p>Loading...</p>
+         <div className="flex justify-center items-center h-100">
+                 <Loader />
+               </div>
       ) : employees.length ? (
         <>
           <DataTable data={employees} columns={columns} />

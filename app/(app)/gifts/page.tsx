@@ -576,11 +576,12 @@ import { ConfirmDialog } from '@/src/component/common/ConfirmDialog';
 import { EmptyState } from '@/src/component/common/EmptyState';
 import { StatusBadge } from '@/src/component/common/StatusBadge';
 import { GiftModal } from '@/src/component/gifts/Gift-Modal';
-import { BirthdaySpinwheelLoader } from '@/src/component/common/Loader';
+
 import { useGifts, useCreateGift, useUpdateGift, useDeleteGift } from '@/src/hooks/useGift';
 import { Gift as GiftType } from '@/src/types/index';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Loader } from '@/src/component/common/Loader';
 
 export default function Gifts() {
 
@@ -716,8 +717,8 @@ export default function Gifts() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center h-[300px]">
-          <BirthdaySpinwheelLoader />
+        <div className="flex justify-center items-center h-100">
+          <Loader />
         </div>
       ) : filteredGifts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

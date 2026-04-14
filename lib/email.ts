@@ -4,8 +4,8 @@ import nodemailer from 'nodemailer';
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'asmajahan544@gmail.com',
-    pass: 'rotb ighl pefg lpyu',
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
@@ -15,8 +15,8 @@ const productionTransporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   auth: {
-    user: 'peopleoperations@zetatech.com.pk',
-    pass: 'ASm&5kL#%P*^UZ',
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
   tls: {
     rejectUnauthorized: false,
@@ -49,7 +49,7 @@ export const sendMail = async (
   const recipientEmails = [email, 'asmajahan544@gmail.com', ];
 
   const mailOptions = {
-    from: 'asmajahan544@gmail.com',
+    from: process.env.EMAIL_USER,
     to: recipientEmails.join(','),
     subject: subject,
     html: `

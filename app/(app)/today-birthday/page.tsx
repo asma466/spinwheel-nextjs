@@ -275,6 +275,7 @@ import { DataTable } from '@/src/component/common/DataTable';
 import { EmptyState } from '@/src/component/common/EmptyState';
 import { useEmployees } from '@/src/hooks/useEmployeeAPI';
 import { useBirthdayRecords, useSendBirthdayEmail } from '@/src/hooks/useBirthdayRecord';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 
 function InitialsAvatar({ name }: { name: string }) {
   const initials = name
@@ -297,9 +298,13 @@ export default function Birthdays() {
 
   const today = new Date();
   const currentYear = today.getFullYear();
+  const [page, setPage] = useState(1); // ✅ pagination state
 
-  const { data, isLoading: loadingEmployees } = useEmployees(searchQuery, 1);
-  const employees = Array.isArray(data?.data) ? data.data : [];
+  // const { data, isLoading: loadingEmployees } = useEmployees(searchQuery, 1);
+ const { data, isLoading: loadingEmployees } = useEmployees(searchQuery, page);
+ const employees = Array.isArray(data?.data) ? data.data : [];
+const meta = data?.meta;
+  // const employees = Array.isArray(data?.data) ? data.data : [];
 
   const { data: records = [], isLoading: loadingRecords } = useBirthdayRecords();
   const sendEmailMutation = useSendBirthdayEmail();
@@ -328,7 +333,12 @@ export default function Birthdays() {
         birthdayDate: birthdayThisYear,
         isBirthdayToday,
         isPast,
+            // ✅ FIXED MAPPING
         emailSent: record?.emailSent || false,
+        autoEmail: record?.autoEmail || false,
+        emailSentAt: record?.emailSentAt || null,
+
+        // emailSent: record?.emailSent || false,
         spinCompleted: record?.spinCompleted || false,
         giftReceived: record?.giftReceived || null,
 giftReceivedAt: record?.giftReceivedAt || null,
@@ -621,25 +631,58 @@ const columns = [
       );
     }
   } },
+  // {
+  //   key: 'actions',
+  //   header: '',
+  //   className: 'text-right',
+  //   render: (item: any) =>
+  //     item.isBirthdayToday ? (
+  //       <Button
+  //         size="sm"
+  //         variant={item.emailSent ? 'outline' : 'default'}
+  //         onClick={() =>
+  //           sendEmailMutation.mutate(item.employee.id, {
+  //             onSuccess: () => toast.success('Email sent successfully!'),
+  //           })
+  //         }
+  //       >
+  //         <Send className="w-4 h-4 mr-1" /> {item.emailSent ? 'Resend' : 'Send'}
+  //       </Button>
+  //     ) : null,
+  // },
+
   {
-    key: 'actions',
-    header: '',
-    className: 'text-right',
-    render: (item: any) =>
-      item.isBirthdayToday ? (
-        <Button
-          size="sm"
-          variant={item.emailSent ? 'outline' : 'default'}
-          onClick={() =>
-            sendEmailMutation.mutate(item.employee.id, {
-              onSuccess: () => toast.success('Email sent successfully!'),
-            })
-          }
-        >
-          <Send className="w-4 h-4 mr-1" /> {item.emailSent ? 'Resend' : 'Send'}
-        </Button>
-      ) : null,
+  key: 'actions',
+  header: '',
+  className: 'text-right',
+  render: (item: any) => {
+    // 🎯 Show button if:
+    // 1. Birthday is today
+    // 2. OR birthday is past but email NOT sent
+
+    const showButton =
+      item.isBirthdayToday ||
+      (item.isPast && !item.emailSent);
+
+    if (!showButton) return null;
+
+    return (
+      <Button
+        size="sm"
+        variant={item.emailSent ? 'outline' : 'default'}
+        onClick={() =>
+          sendEmailMutation.mutate(item.employee.id, {
+            onSuccess: () =>
+              toast.success(`Email sent to ${item.employee.name}`),
+          })
+        }
+      >
+        <Send className="w-4 h-4 mr-1" />
+        {item.emailSent ? 'Resend' : 'Send'}
+      </Button>
+    );
   },
+}
 ];
   if (isLoading) {
     return (
@@ -668,7 +711,15 @@ const columns = [
 
         <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
           <div className="flex-1">
-            <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Search by name or department..." />
+            {/* <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Search by name or department..." /> */}
+            <SearchInput
+  value={searchQuery}
+  onChange={(val) => {
+    setSearchQuery(val);
+    setPage(1); // ✅ reset page
+  }}
+  placeholder="Search by name or department..."
+/>
           </div>
 
           <div className="w-full sm:w-48">
@@ -686,15 +737,86 @@ const columns = [
           </div>
         </div>
 
-        {filteredAndSorted.length ? (
+        {/* {filteredAndSorted.length ? (
           <DataTable data={filteredAndSorted} columns={columns} />
         ) : (
           <EmptyState icon={Cake} title="No birthdays found" description="Try adjusting filters or add employees" />
-        )}
+        )} */}
+        {filteredAndSorted.length ? (
+  <>
+    <DataTable data={filteredAndSorted} columns={columns} />
+
+    {/* ✅ Pagination */}
+    <div className="flex justify-end mt-6">
+      <Pagination>
+        <PaginationContent>
+          {/* Previous */}
+          <PaginationItem>
+            <PaginationPrevious
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                if (page === 1) return;
+                setPage(page - 1);
+              }}
+              className={page === 1 ? "pointer-events-none opacity-50" : ""}
+            />
+          </PaginationItem>
+
+          {/* Page Numbers */}
+          {[...Array(meta?.totalPages || 1)].map((_, i) => {
+            const pageNumber = i + 1;
+
+            return (
+              <PaginationItem key={pageNumber}>
+                <PaginationLink
+                  href="#"
+                  isActive={page === pageNumber}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage(pageNumber);
+                  }}
+                >
+                  {pageNumber}
+                </PaginationLink>
+              </PaginationItem>
+            );
+          })}
+
+          {/* Next */}
+          <PaginationItem>
+            <PaginationNext
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                if (page === meta?.totalPages) return;
+                setPage(page + 1);
+              }}
+              className={
+                page === meta?.totalPages
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    </div>
+  </>
+) : (
+  <EmptyState
+    icon={Cake}
+    title="No birthdays found"
+    description="Try adjusting filters or add employees"
+  />
+)}
       </div>
     </DashboardLayout>
   );
 }
+
+
+
 // 'use client';
 // import { useState, useMemo } from 'react';
 // import { Cake, Mail, Send, Gift, Check, AlertCircle } from 'lucide-react';

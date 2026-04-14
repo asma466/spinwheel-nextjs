@@ -1,4 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'); */
+
+/* @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Manrope:wght@200..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap'); */
+
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -45,6 +51,10 @@
 /* ---------------- DESIGN VARIABLES ---------------- */
 @layer base {
   :root {
+   
+  --color-primary: #CE1B22;
+  --color-primary-hover: #b9171d;
+
     --background: 210 20% 98%;
     --foreground: 220 20% 10%;
     --card: 0 0% 100%;
@@ -75,7 +85,7 @@
     --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
 
     /* Tailwind gray-300 */
-
+    
   }
 
   .dark {
@@ -108,7 +118,9 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    /* font-family: 'Poppins', sans-serif; */
+     font-family: 'ubuntu', sans-serif;
+
   }
 }
 
@@ -242,4 +254,30 @@ select:focus-visible {
 
 .animate-spin-slow {
   animation: spin-slow 20s linear infinite;
+}
+/* h1, h2, h3, h4, h5, h6 {
+  font-family: 'Ubuntu', sans-serif;
+ text-primary
+} */
+
+/* Headings */
+.heading-xl {
+  @apply text-3xl font-semibold text-primary tracking-tight;
+}
+
+.heading-lg {
+  @apply text-xl font-semibold text-primary;
+}
+label {
+  font-weight: 600;
+  Color: rgb(216, 201, 201)(0 0% 20%);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
