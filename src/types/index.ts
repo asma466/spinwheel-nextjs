@@ -5,9 +5,9 @@ export interface Employee {
   department: string;
   // position: string;
   // dateOfBirth: string;
-  dob: string;
-  role: string;
-  password?: string; 
+  dob: Date;
+  role: string| null;
+  password?: string | null; 
   // joinDate: string;
   // phone: string;
   avatar?: string;

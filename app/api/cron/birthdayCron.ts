@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import { prisma } from "@/lib/prisma";
 import { sendBirthdayGreetingEmail } from "@/lib/email";
-import { Employee } from "@prisma/client";
+import { Employee } from "@/src/types";
 
 console.log("Birthday cron initialized...");
 
