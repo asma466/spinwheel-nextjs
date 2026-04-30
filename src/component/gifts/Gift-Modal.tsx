@@ -80,7 +80,7 @@ export function GiftModal({ open, onOpenChange, gift, onSave,  }: GiftModalProps
               id="name"
               value={formData.name}
               onChange={(e) => handleChange('name', e.target.value)}
-              placeholder="Amazon Gift Card"
+              placeholder="Enter Gift Name"
               required
             />
           </div>

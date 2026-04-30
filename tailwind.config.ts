@@ -164,8 +164,9 @@ module.exports = {
       // },
 
        fontFamily: {
-    sans: ['Inter', 'sans-serif'],
-    heading: ['Ubuntu', 'sans-serif'],
+    // sans: ['Inter', 'sans-serif'],
+    // heading: ['Ubuntu', 'sans-serif'],
+      sans: ['var(--font-montserrat)', 'sans-serif'],
   },
   colors: {
         primary: "#CE1B22",

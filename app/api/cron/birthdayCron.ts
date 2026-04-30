@@ -1,6 +1,7 @@
 import cron from "node-cron";
 import { prisma } from "@/lib/prisma";
 import { sendBirthdayGreetingEmail } from "@/lib/email";
+import { Employee } from "@prisma/client";
 
 console.log("Birthday cron initialized...");
 
@@ -13,9 +14,9 @@ cron.schedule("12 11 * * *", async () => {
     const day = today.getDate();
     const year = today.getFullYear();
 
-    const employees = await prisma.employee.findMany();
-
-    const birthdayEmployees = employees.filter(emp => {
+    // const employees = await prisma.employee.findMany();
+const employees: Employee[] = await prisma.employee.findMany();
+    const birthdayEmployees = employees.filter((emp : Employee) => {
       const dob = new Date(emp.dob);
       return dob.getMonth() === month && dob.getDate() === day;
     });

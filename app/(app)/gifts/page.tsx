@@ -731,13 +731,13 @@ export default function Gifts() {
                 <div className="flex items-center gap-3">
                   <div
                     className={`p-3 rounded-xl ${
-                      gift.available ? 'bg-success/10' : 'bg-muted'
+                      gift.available ? 'bg-[#CE1B22]/10' : 'bg-muted'
                     }`}
                   >
                     <Gift
                       className={`w-5 h-5 ${
                         gift.available
-                          ? 'text-success'
+                          ? 'text-[#CE1B22]'
                           : 'text-muted-foreground'
                       }`}
                     />
@@ -781,7 +781,7 @@ export default function Gifts() {
                     className={`text-lg font-semibold ${
                       gift.quantity === 0
                         ? 'text-destructive'
-                        : 'text-success'
+                        : 'text-[#CE1B22]'
                     }`}
                   >
                     {gift.quantity}

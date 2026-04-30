@@ -311,12 +311,13 @@ export default function Dashboard() {
       ) : (
         <>
           {/* ---------------- STATS ---------------- */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             <StatCard
               title="Total Employees"
               value={data?.totalEmployees ?? 0}
               icon={Users}
               variant="primary"
+               
             />
 
             <StatCard
@@ -324,13 +325,23 @@ export default function Dashboard() {
               value={data?.todayBirthdays?.length ?? 0}
               icon={Cake}
               variant="success"
+              
             />
+             <StatCard
+          title="Available Gifts"
+          value={data?.availableGifts ?? 0}
+
+          subtitle={`of ${data?.totalGifts ?? 0} total`}
+          icon={Gift}
+          variant="default"
+         
+        />
 
             <StatCard
               title="Pending Emails"
               value={pendingEmailEmployees.length}
               icon={Mail}
-              variant="warning"
+             
             />
 
             <StatCard
@@ -338,15 +349,9 @@ export default function Dashboard() {
               value={notSpunEmployees.length}
               icon={LoaderPinwheel}
               variant="warning"
+               
             />
-              <StatCard
-          title="Available Gifts"
-          value={data?.availableGifts ?? 0}
-
-          subtitle={`of ${data?.totalGifts ?? 0} total`}
-          icon={Gift}
-          variant="default"
-        />
+             
           </div>
 
           {/* ---------------- MAIN GRID ---------------- */}

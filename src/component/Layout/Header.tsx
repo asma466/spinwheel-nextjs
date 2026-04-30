@@ -256,7 +256,7 @@
 
 'use client';
 
-import { LogOut } from 'lucide-react';
+import { LogOut, Menu, X } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
@@ -266,6 +266,7 @@ import {
   DropdownMenuItem
 } from '@/components/ui/dropdown-menu';
 import Avatar from '../common/Avatar';
+import { useState } from 'react';
 
 
 interface HeaderProps {
@@ -281,6 +282,7 @@ const { data: session, status } = useSession();
     router.push('/login');
   };
 
+  const [isOpen, setIsOpen] = useState(false);
   const userRole = session?.user?.role ? session.user.role.toUpperCase() : 'USER';
   const userEmail = session?.user?.email || 'No Email';
 
@@ -290,17 +292,44 @@ const { data: session, status } = useSession();
       transition-all duration-300">
 
       {/* Sidebar toggle button */}
-      <button onClick={onToggleSidebar} className="p-2 rounded-lg">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#CE1B22]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+    
 
+      {/* <button
+  onClick={() => {
+    onToggleSidebar();
+    setIsOpen(prev => !prev);
+  }}
+  className="p-2 rounded-lg transition-all duration-300"
+>
+  <div className="relative w-6 h-6">
+    
+    <X
+      className={`absolute inset-0 text-[#CE1B22] transition-all duration-300 ${
+        isOpen ? 'opacity-0 rotate-90 scale-75' : 'opacity-100 rotate-0 scale-100'
+      }`}
+    />
+
+    
+    <Menu
+      className={`absolute inset-0 text-[#CE1B22] transition-all duration-300 ${
+        isOpen ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-75'
+      }`}
+    />
+  </div>
+</button> */}
+
+
+<button
+  onClick={onToggleSidebar}
+  className="p-2 rounded-lg transition-all duration-300"
+>
+  <Menu className="w-6 h-6 text-[#CE1B22]" />
+</button>
       {/* Header title */}
       <div className="flex items-center justify-center gap-2 absolute left-1/2 -translate-x-1/2">
         <span className="text-2xl">🎉</span>
         <h1 className="font-heading font-bold text-xl lg:text-2xl italic tracking-[0.12em] text-transparent bg-clip-text bg-gradient-to-r from-[#CE1B22] to-gray-700">
-          Zeta WheelSpin Dashboard
+           WheelSpin Dashboard
         </h1>
         <span className="text-2xl">🎉</span>
       </div>

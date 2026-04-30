@@ -183,6 +183,9 @@ import {
 } from "@/src/hooks/useEmployeeAPI";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import { selectItemStyle } from "@/src/types/className";
+import { PasswordField } from "../common/Password";
 
 
 interface EmployeeModalProps {
@@ -197,14 +200,14 @@ export const EmployeeModal = ({
   employee,
 }: EmployeeModalProps) => {
 
-  const { formData, handleChange } = useEmployeeForm(employee);
+  const { formData, handleChange , setFormData } = useEmployeeForm(employee);
 
   const { mutateAsync: createEmployee, isPending: isCreating } =
     useCreateEmployee();
 
   const { mutateAsync: updateEmployee, isPending: isUpdating } =
     useUpdateEmployee();
-
+const [showPassword, setShowPassword] = useState(false);
   const isSubmitting = isCreating || isUpdating;
 
   // const handleSubmit = async (e: React.FormEvent) => {
@@ -243,6 +246,19 @@ export const EmployeeModal = ({
   //   onOpenChange(false);
   // };
 
+   // ✅ Reset form when modal opens (important fix)
+  useEffect(() => {
+    if (open && !employee) {
+      setFormData({
+        name: "",
+        email: "",
+        department: "",
+        dob: "",
+        role: "USER", // ✅ default
+        password: "",
+      });
+    }
+  }, [open, employee, setFormData]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -257,10 +273,15 @@ export const EmployeeModal = ({
     // }
 
      // ADMIN password validation
-  if (formData.role === "ADMIN" && !formData.password && !employee) {
-    toast.error("Password is required for Admin");
-    return;
-  }
+  // if (formData.role === "ADMIN" && !formData.password && !employee) {
+  //   toast.error("Password is required for Admin");
+  //   return;
+  // }
+
+if (!employee && formData.role !== "ADMIN" && !formData.password) {
+  toast.error("Password is required");
+  return;
+}
 
     // try {
     //   if (employee) {
@@ -288,6 +309,9 @@ export const EmployeeModal = ({
 
   };
 
+  // const showPasswordField =
+  // formData.role === "ADMIN" &&
+  // (!employee || employee?.isPasswordSet !== true);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-card max-w-md  border border-transparent shadow-xl">
@@ -378,10 +402,12 @@ export const EmployeeModal = ({
 
                 {/* ✅ THIS is where your class goes */}
                 <SelectContent className="hover:text-[#CE1B22]">
-                  <SelectItem value="ADMIN" >
+                  <SelectItem value="ADMIN"  
+                className={selectItemStyle}
+   >
                     Admin
                   </SelectItem>
-                  <SelectItem value="USER" >
+                  <SelectItem value="USER"  className={selectItemStyle}>
                     User
                   </SelectItem>
                 </SelectContent>
@@ -389,7 +415,7 @@ export const EmployeeModal = ({
             </div>
 
             {/* Password (Only if ADMIN) */}
-            {formData.role === "ADMIN" && (
+            {/* {formData.role === "ADMIN" && (
               <div className="col-span-2 space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -399,8 +425,23 @@ export const EmployeeModal = ({
                   onChange={(e) => handleChange("password", e.target.value)}
                   required={!employee} // required only when creating
                 />
-              </div>
-            )}
+              </div> */}
+  {/* Password (ADMIN only, and not if already exists in edit mode) */}
+{formData.role === "ADMIN" && (!employee || !employee.password) && (
+  <div className="col-span-2 space-y-2 relative">
+    
+    <PasswordField
+      label="Password"
+      value={formData.password}
+      onChange={(value) => handleChange("password", value)}
+      placeholder="Enter password"
+      showPassword={showPassword}
+      toggleShow={() => setShowPassword(!showPassword)}
+      required={!employee}
+    />
+
+  </div>
+)}        
           </div>
 
 

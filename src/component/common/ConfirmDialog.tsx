@@ -39,7 +39,11 @@ export function ConfirmDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="btn-secondary">
+          <AlertDialogCancel 
+          // className="btn-secondary"
+          className="btn-cancel"
+            // className="border border-red-500 text-red-500 hover:bg-red-50"
+          >
             {cancelLabel}
           </AlertDialogCancel>
           <AlertDialogAction

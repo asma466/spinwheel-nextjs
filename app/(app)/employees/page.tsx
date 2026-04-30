@@ -535,7 +535,7 @@ export default function Employees() {
             setPage(1);
           }}
           placeholder="Search employees..."
-        />bitri
+        />
       </div>
 
       {isLoading ? (

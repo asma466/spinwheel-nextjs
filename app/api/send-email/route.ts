@@ -35,14 +35,36 @@ export async function GET() {
         data: {
           year,
           employeeId: emp.id,
-          emailSent: true,
+          // emailSent: true,
+          emailSent:false,
           autoEmail: true,
            emailSentAt: new Date()   // 👈 SAVE TIMESTAMP
         }
       });
 
       // Send email
-      await sendBirthdayGreetingEmail(emp.name, emp.email, record.id);
+      // await sendBirthdayGreetingEmail(emp.name, emp.email, record.id);
+        try {
+        // ✅ Step 2: Send email
+        await sendBirthdayGreetingEmail(emp.name, emp.email, record.id);
+
+        // ✅ Step 3: Update status ONLY if success
+        await prisma.birthdayRecord.update({
+          where: { id: record.id },
+          data: {
+            emailSent: true,
+            emailSentAt: new Date()
+          }
+        });
+
+        console.log(`✅ Email sent to ${emp.email}`);
+
+      } catch (err) {
+        console.error(`❌ Failed to send email to ${emp.email}`, err);
+
+        // ❗ emailSent stays false → can retry later
+      }
+    
     }
 
     return Response.json({
