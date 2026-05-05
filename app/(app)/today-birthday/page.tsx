@@ -276,6 +276,7 @@ import { EmptyState } from '@/src/component/common/EmptyState';
 import { useEmployees } from '@/src/hooks/useEmployeeAPI';
 import { useBirthdayRecords, useSendBirthdayEmail } from '@/src/hooks/useBirthdayRecord';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { Loader } from '@/src/component/common/Loader';
 
 function InitialsAvatar({ name }: { name: string }) {
   const initials = name
@@ -684,13 +685,14 @@ const columns = [
   },
 }
 ];
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="p-8 text-center">Loading...</div>
-      </DashboardLayout>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <DashboardLayout>
+  //       <div className="p-8 text-center"><Loader/>
+  //       </div>
+  //     </DashboardLayout>
+  //   );
+  // }
 
   return (
     <DashboardLayout>
@@ -742,7 +744,14 @@ const columns = [
         ) : (
           <EmptyState icon={Cake} title="No birthdays found" description="Try adjusting filters or add employees" />
         )} */}
-        {filteredAndSorted.length ? (
+       
+       
+       {isLoading ? (
+  <div className="p-6 flex justify-center items-center min-h-75">
+    <Loader />
+  </div>
+) :
+ filteredAndSorted.length ? (
   <>
     <DataTable data={filteredAndSorted} columns={columns} />
 
