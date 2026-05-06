@@ -44,7 +44,7 @@ export default function TestBirthdayPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 p-8">
       <div className="max-w-md mx-auto">
         <Card className="p-8 shadow-lg">
           <h1 className="text-3xl font-bold mb-2 text-center text-indigo-600">
