@@ -277,6 +277,7 @@ import { useEmployees } from '@/src/hooks/useEmployeeAPI';
 import { useBirthdayRecords, useSendBirthdayEmail } from '@/src/hooks/useBirthdayRecord';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Loader } from '@/src/component/common/Loader';
+import { Employee } from '@/src/types';
 
 function InitialsAvatar({ name }: { name: string }) {
   const initials = name
@@ -316,7 +317,7 @@ const meta = data?.meta;
 
   // Build employee birthday data with today check
   const employeeBirthdayData = useMemo(() => {
-    return employees.map((emp: any) => {
+    return employees.map((emp: Employee) => {
       const record = recordMap.get(emp.id);
       let birthdayThisYear: Date | null = null;
 
