@@ -295,10 +295,16 @@ if (!employee && formData.role !== "ADMIN" && !formData.password) {
     // }  
      try {
     if (employee) {
-      await updateEmployee({ id: employee.id, ...formData });
+      // await updateEmployee({ id: employee.id, ...formData });
+       await updateEmployee({
+      id: employee.id,
+      ...formData,
+      dob: new Date(formData.dob),
+    });
       toast.success("Employee updated successfully ✅");
     } else {
-      await createEmployee(formData);
+      // await createEmployee(formData);
+         dob: new Date(formData.dob),
       toast.success("Employee created successfully 🎉");
     }
 
