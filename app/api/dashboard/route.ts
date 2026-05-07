@@ -1,46 +1,26 @@
-// import { NextResponse } from "next/server";
-// import { prisma } from "@/lib/prisma";
-
-// export async function GET() {
-//   try {
-//     const totalEmployees = await prisma.employee.count();
-//     const availableGifts = await prisma.gift.count({
-//       where: { available: true },
-//     });
-
-//     const totalGifts = await prisma.gift.count();
-
-//     return NextResponse.json({
-//       totalEmployees,
-//       availableGifts,
-//       totalGifts,
-//     });
-//   } catch (error) {
-//     console.error("DASHBOARD ERROR:", error);
-//     return NextResponse.json(
-//       { message: "Failed to fetch dashboard stats" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
 
 // import { NextResponse } from "next/server";
 // import { prisma } from "@/lib/prisma";
+// import { Employee } from "@/src/types";
 
+
+// type EmployeeWithDob = {
+//   id: number;
+//   name: string;
+//   department: string;
+//   dob: Date | null;
+// };
 // export async function GET() {
 //   try {
 //     const today = new Date();
-//     const month = today.getMonth() + 1;
-//     const day = today.getDate();
 
 //     const [
 //       totalEmployees,
 //       availableGifts,
 //       totalGifts,
-//       todayBirthdays,
+//       employeesWithDob,
 //       pendingEmails,
-//       recentGiftActivity
+//       recentGiftActivity,
 //     ] = await Promise.all([
 //       prisma.employee.count(),
 
@@ -52,11 +32,8 @@
 
 //       prisma.employee.findMany({
 //         // where: {
-//         //   AND: [
-//         //     { dob: { not: null } },
-//         //   ],
+//         //   dob: { not: null },
 //         // },
-  
 //         select: {
 //           id: true,
 //           name: true,
@@ -68,7 +45,7 @@
 //       prisma.birthdayRecord.count({
 //         where: {
 //           emailSent: false,
-//           year: today.getFullYear(),
+//           year: today.getUTCFullYear(),
 //         },
 //       }),
 
@@ -78,7 +55,15 @@
 //         },
 //         include: {
 //           employee: true,
-//           giftReceived: true,
+//            giftReceived: {
+//       select: {
+//         id: true,
+//         name: true,
+//         quantity: true,
+//         available: true,
+       
+//       },
+//     }
 //         },
 //         orderBy: {
 //           giftReceivedAt: "desc",
@@ -87,19 +72,43 @@
 //       }),
 //     ]);
 
-//     // Filter birthdays by month/day only
-//     const filteredBirthdays = todayBirthdays.filter((emp) => {
-//       const dob = new Date(emp.dob);
-//       return dob.getMonth() + 1 === month && dob.getDate() === day;
+//     // ✅ ✅ ADD TYPE RIGHT HERE 👇
+// // type EmployeeWithDob = {
+// //   id: number;
+// //   name: string;
+// //   department: string;
+// //   dob: Date | null;
+// // };
+
+//     // 🔥 Correct UTC-based birthday filtering
+//     const todayBirthdays  = employeesWithDob.filter((emp: Employee) => {
+      
+//        if (!emp.dob) return false;
+//        const dob = new Date(emp.dob);
+
+//       return (
+//         dob.getUTCMonth() === today.getUTCMonth() &&
+//         dob.getUTCDate() === today.getUTCDate()
+//       );
+//     });
+
+//     const todayBirthdayIds = todayBirthdays.map((emp) => emp.id);
+
+//     const birthdayRecords = await prisma.birthdayRecord.findMany({
+//       where: {
+//         employeeId: { in: todayBirthdayIds },
+//         year: today.getUTCFullYear(),
+//       },
 //     });
 
 //     return NextResponse.json({
 //       totalEmployees,
 //       availableGifts,
 //       totalGifts,
-//       todayBirthdays: filteredBirthdays,
+//       todayBirthdays,
 //       pendingEmails,
 //       recentGiftActivity,
+//       birthdayRecords,
 //     });
 //   } catch (error) {
 //     console.error("Dashboard Error:", error);
@@ -113,8 +122,6 @@
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Employee } from "@/src/types";
-
 
 type EmployeeWithDob = {
   id: number;
@@ -122,6 +129,7 @@ type EmployeeWithDob = {
   department: string;
   dob: Date | null;
 };
+
 export async function GET() {
   try {
     const today = new Date();
@@ -143,9 +151,6 @@ export async function GET() {
       prisma.gift.count(),
 
       prisma.employee.findMany({
-        // where: {
-        //   dob: { not: null },
-        // },
         select: {
           id: true,
           name: true,
@@ -167,15 +172,14 @@ export async function GET() {
         },
         include: {
           employee: true,
-           giftReceived: {
-      select: {
-        id: true,
-        name: true,
-        quantity: true,
-        available: true,
-       
-      },
-    }
+          giftReceived: {
+            select: {
+              id: true,
+              name: true,
+              quantity: true,
+              available: true,
+            },
+          },
         },
         orderBy: {
           giftReceivedAt: "desc",
@@ -184,27 +188,24 @@ export async function GET() {
       }),
     ]);
 
-    // ✅ ✅ ADD TYPE RIGHT HERE 👇
-// type EmployeeWithDob = {
-//   id: number;
-//   name: string;
-//   department: string;
-//   dob: Date | null;
-// };
+    // 🔥 Filter today's birthdays safely
+    const todayBirthdays = (employeesWithDob as EmployeeWithDob[]).filter(
+      (emp) => {
+        if (!emp.dob) return false;
 
-    // 🔥 Correct UTC-based birthday filtering
-    const todayBirthdays  = employeesWithDob.filter((emp: Employee) => {
-      
-       if (!emp.dob) return false;
-       const dob = new Date(emp.dob);
+        const dob = new Date(emp.dob);
 
-      return (
-        dob.getUTCMonth() === today.getUTCMonth() &&
-        dob.getUTCDate() === today.getUTCDate()
-      );
-    });
+        return (
+          dob.getUTCMonth() === today.getUTCMonth() &&
+          dob.getUTCDate() === today.getUTCDate()
+        );
+      }
+    );
 
-    const todayBirthdayIds = todayBirthdays.map((emp) => emp.id);
+    // ✅ safe mapping (no implicit any)
+    const todayBirthdayIds = todayBirthdays.map(
+      (emp: EmployeeWithDob) => emp.id
+    );
 
     const birthdayRecords = await prisma.birthdayRecord.findMany({
       where: {
@@ -230,4 +231,3 @@ export async function GET() {
     );
   }
 }
-
