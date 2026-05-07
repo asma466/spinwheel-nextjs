@@ -1,12 +1,12 @@
 export interface Employee {
   id: number;
   name: string;
-  email: string;
+  email?: string;
   department: string;
   // position: string;
   // dateOfBirth: string;
   dob: Date| null;
-  role: string| null;
+  role?: string| null;
   password?: string | null; 
   // joinDate: string;
   // phone: string;

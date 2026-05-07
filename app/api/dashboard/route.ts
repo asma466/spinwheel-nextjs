@@ -116,7 +116,12 @@ import { prisma } from "@/lib/prisma";
 import { Employee } from "@/src/types";
 
 
-
+type EmployeeWithDob = {
+  id: number;
+  name: string;
+  department: string;
+  dob: Date | null;
+};
 export async function GET() {
   try {
     const today = new Date();
@@ -180,15 +185,15 @@ export async function GET() {
     ]);
 
     // ✅ ✅ ADD TYPE RIGHT HERE 👇
-type EmployeeWithDob = {
-  id: number;
-  name: string;
-  department: string;
-  dob: Date | null;
-};
+// type EmployeeWithDob = {
+//   id: number;
+//   name: string;
+//   department: string;
+//   dob: Date | null;
+// };
 
     // 🔥 Correct UTC-based birthday filtering
-    const todayBirthdays  = employeesWithDob.filter((emp: EmployeeWithDob) => {
+    const todayBirthdays  = employeesWithDob.filter((emp: Employee) => {
       
        if (!emp.dob) return false;
        const dob = new Date(emp.dob);
