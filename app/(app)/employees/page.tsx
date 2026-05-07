@@ -478,8 +478,8 @@ export default function Employees() {
     {
       key: "dob",
       header: "Birthday",
-      render: (emp: Employee) =>
-        format(new Date(emp.dob), "MMM d, yyyy"),
+     render: (emp: Employee) =>
+  emp.dob ? format(new Date(emp.dob), "MMM d, yyyy") : "—",
     },
     {
       key: "actions",

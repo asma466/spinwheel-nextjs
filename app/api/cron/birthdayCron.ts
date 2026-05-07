@@ -17,6 +17,7 @@ cron.schedule("12 11 * * *", async () => {
     // const employees = await prisma.employee.findMany();
 const employees: Employee[] = await prisma.employee.findMany();
     const birthdayEmployees = employees.filter((emp : Employee) => {
+       if (!emp.dob) return false;
       const dob = new Date(emp.dob);
       return dob.getMonth() === month && dob.getDate() === day;
     });

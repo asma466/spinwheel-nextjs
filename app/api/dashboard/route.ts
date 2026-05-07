@@ -113,6 +113,9 @@
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { Employee } from "@/src/types";
+
+
 
 export async function GET() {
   try {
@@ -176,9 +179,19 @@ export async function GET() {
       }),
     ]);
 
+    // ✅ ✅ ADD TYPE RIGHT HERE 👇
+type EmployeeWithDob = {
+  id: number;
+  name: string;
+  department: string;
+  dob: Date | null;
+};
+
     // 🔥 Correct UTC-based birthday filtering
-    const todayBirthdays = employeesWithDob.filter((emp) => {
-      const dob = new Date(emp.dob);
+    const todayBirthdays  = employeesWithDob.filter((emp: EmployeeWithDob) => {
+      
+       if (!emp.dob) return false;
+       const dob = new Date(emp.dob);
 
       return (
         dob.getUTCMonth() === today.getUTCMonth() &&

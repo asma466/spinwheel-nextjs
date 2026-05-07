@@ -248,6 +248,7 @@ import { StatusBadge } from '@/src/component/common/StatusBadge';
 import { format } from 'date-fns';
 import { useDashboardStats } from '@/src/hooks/useDashboard';
 import { Loader } from '@/src/component/common/Loader';
+import { Employee } from '@/src/types';
 
 export default function Dashboard() {
   const { data, isLoading } = useDashboardStats();
@@ -288,7 +289,7 @@ export default function Dashboard() {
 
   /* ---------------- NOT SPUN YET ---------------- */
   const notSpunEmployees =
-    data?.todayBirthdays?.filter((emp: any) => {
+    data?.todayBirthdays?.filter((emp: Employee) => {
       const record = data?.birthdayRecords?.find(
         (r: any) =>
           r.employeeId === emp.id && r.year === currentYear
@@ -370,7 +371,7 @@ export default function Dashboard() {
 
               {data?.todayBirthdays?.length > 0 ? (
                 <div className="space-y-3">
-                  {data.todayBirthdays.map((emp: any) => {
+                  {data.todayBirthdays.map((emp: Employee) => {
                     const record = data?.birthdayRecords?.find(
                       (r: any) =>
                         r.employeeId === emp.id &&
@@ -491,7 +492,7 @@ export default function Dashboard() {
 
               {notSpunEmployees.length > 0 ? (
                 <div className="space-y-3">
-                  {notSpunEmployees.map((emp: any) => (
+                  {notSpunEmployees.map((emp: Employee) => (
                     <div
                       key={emp.id}
                       className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"

@@ -382,7 +382,7 @@
 
 
 
-import BirthdaySpinPage from '@/src/component/Birthday-spin/birthday-spin'
+import BirthdaySpinPage from '@/src/Birthday-spin/birthday-spin'
 import { Loader } from '@/src/component/common/Loader'
 import React, { Suspense } from 'react'
 
