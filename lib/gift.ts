@@ -33,7 +33,7 @@ export async function assignGiftToUser(recordId: number) {
     });
 
     // Save gift in BirthdayRecord
-    await prisma.birthdayRecord.update({
+    await prisma.birthdayrecord.update({
         where: { id: recordId },
         data: {
             giftReceivedId: gift.id,

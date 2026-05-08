@@ -314,7 +314,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { getAdminSession } from "@/lib/getAdminSession";
 // const prisma = new PrismaClient();
-
+export const runtime = "nodejs";
 /* =======================================================
    POST - Create Employee
 ======================================================= */

@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 export async function spinWheel(recordId: number) {
     if (!recordId) throw new Error("Missing recordId");
 
-    const record = await prisma.birthdayRecord.findUnique({
+    const record = await prisma.birthdayrecord.findUnique({
         where: { id: recordId },
     });
 
@@ -32,7 +32,7 @@ export async function spinWheel(recordId: number) {
 
     // ✅ transaction (VERY IMPORTANT)
     await prisma.$transaction([
-        prisma.birthdayRecord.update({
+        prisma.birthdayrecord.update({
             where: { id: recordId },
             data: {
                 spinCompleted: true,

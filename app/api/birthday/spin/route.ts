@@ -36,7 +36,7 @@ export async function POST(req: Request) {
 
   const { token } = await req.json();
 
-  const record = await prisma.birthdayRecord.findUnique({
+  const record = await prisma.birthdayrecord.findUnique({
     where: { spinToken: token }
   });
 
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
 
   const prize = prizes[Math.floor(Math.random() * prizes.length)];
 
-  await prisma.birthdayRecord.update({
+  await prisma.birthdayrecord.update({
     where: { id: record.id },
     data: {
       spinCompleted: true

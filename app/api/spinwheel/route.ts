@@ -85,7 +85,7 @@ const PRIZES = [
 //   }
 // }
 
-
+export const runtime = "nodejs";
 export async function POST(request: NextRequest) {
   try {
     const { id } = await request.json();
@@ -95,16 +95,18 @@ export async function POST(request: NextRequest) {
     if (isNaN(recordId))
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
 
-    const birthdayRecord = await prisma.birthdayRecord.findUnique({
+    const birthdayrecord = await prisma.birthdayrecord.findUnique({
       where: { id: recordId },
-      include: { employee: true, giftReceived: true },
+      // include: { employee: true, giftReceived: true },
+      include: { employee: true, gift: true },
+    
     });
-    if (!birthdayRecord)
+    if (!birthdayrecord)
       return NextResponse.json({ error: 'Birthday record not found' }, { status: 404 });
 
-    if (birthdayRecord.spinCompleted) {
+    if (birthdayrecord.spinCompleted) {
       return NextResponse.json(
-        { alreadySpun: true, prize: birthdayRecord.giftReceived?.name || null },
+        { alreadySpun: true, prize: birthdayrecord.gift?.name || null },
         { status: 200 }
       );
     }
@@ -128,14 +130,14 @@ export async function POST(request: NextRequest) {
     });
 
     // Optionally mark spin as completed
-    await prisma.birthdayRecord.update({
+    await prisma.birthdayrecord.update({
       where: { id: recordId },
       data: { spinCompleted: true, giftReceivedId: selectedGift.id },
     });
 
     return NextResponse.json({
-      id: birthdayRecord.id,
-      employee: birthdayRecord.employee.name,
+      id: birthdayrecord.id,
+      employee: birthdayrecord.employee.name,
       prize: selectedGift.name,
     });
   } catch (err) {

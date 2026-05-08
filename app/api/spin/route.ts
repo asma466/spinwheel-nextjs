@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { assignGiftToUser } from "@/lib/gift";
 
-
+export const runtime = "nodejs";
 export async function POST(req: Request) {
   const body = await req.json();
   const employeeId = body.employeeId || body.id; // Accept both employeeId and id
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   const year = new Date().getFullYear();
 
   // Find last year's birthday record for this employee (if any)
-  const lastYearRecord = await prisma.birthdayRecord.findFirst({
+  const lastYearRecord = await prisma.birthdayrecord.findFirst({
     where: { employeeId, year: year - 1 },
     select: { giftReceivedId: true },
   });
@@ -51,7 +51,7 @@ export async function GET(req: Request) {
     }
 
     // Check record
-    const record = await prisma.birthdayRecord.findUnique({
+    const record = await prisma.birthdayrecord.findUnique({
       where: { id: recordId },
     });
 

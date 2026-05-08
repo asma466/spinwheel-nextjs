@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 // GET all gifts
+export const runtime = "nodejs";
 export async function GET(request: NextRequest) {
   try {
     const gifts = await prisma.gift.findMany({

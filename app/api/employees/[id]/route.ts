@@ -20,7 +20,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
 import bcrypt from "bcryptjs";
-
+export const runtime = "nodejs";
 export async function PUT(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }

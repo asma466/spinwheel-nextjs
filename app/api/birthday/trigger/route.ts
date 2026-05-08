@@ -61,7 +61,7 @@ export async function POST(req: Request) {
   }
 
   // check if already processed this year
-  const existing = await prisma.birthdayRecord.findUnique({
+  const existing = await prisma.birthdayrecord.findUnique({
     where: {
       employeeId_year: {
         employeeId: employeeIdNumber,
@@ -78,7 +78,7 @@ export async function POST(req: Request) {
   const token = generateSpinToken();
 
   // create birthday record and get the ID
-  const birthdayRecord = await prisma.birthdayRecord.create({
+  const birthdayRecord = await prisma.birthdayrecord.create({
     data: {
       year,
       spinToken: token, // optional, can remove if not using token

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { sendBirthdayGreetingEmail } from "@/lib/email";
-
+export const runtime = "nodejs";
 export async function GET() {
   try {
     const today = new Date();
@@ -19,7 +19,7 @@ export async function GET() {
     for (const emp of birthdayEmployees) {
 
       // Check if already processed this year
-      const existing = await prisma.birthdayRecord.findUnique({
+      const existing = await prisma.birthdayrecord.findUnique({
         where: {
           employeeId_year: {
             employeeId: emp.id,
@@ -31,16 +31,27 @@ export async function GET() {
       if (existing) continue;
 
       // Create record
-      const record = await prisma.birthdayRecord.create({
-        data: {
-          year,
-          employeeId: emp.id,
-          // emailSent: true,
-          emailSent:false,
-          autoEmail: true,
-           emailSentAt: new Date()   // 👈 SAVE TIMESTAMP
-        }
-      });
+      // const record = await prisma.birthdayrecord.create({
+      //   data: {
+      //     year,
+      //     employeeId: emp.id,
+      //     // emailSent: true,
+      //     emailSent:false,
+      //     autoEmail: true,
+      //      emailSentAt: new Date()   // 👈 SAVE TIMESTAMP
+      //   }
+      // });
+
+      const record = await prisma.birthdayrecord.create({
+  data: {
+    year,
+    employeeId: emp.id,
+    emailSent: false,
+    autoEmail: true,
+    emailSentAt: new Date(),
+    updatedAt: new Date(),
+  },
+});
 
       // Send email
       // await sendBirthdayGreetingEmail(emp.name, emp.email, record.id);
@@ -49,7 +60,7 @@ export async function GET() {
         await sendBirthdayGreetingEmail(emp.name, emp.email, record.id);
 
         // ✅ Step 3: Update status ONLY if success
-        await prisma.birthdayRecord.update({
+        await prisma.birthdayrecord.update({
           where: { id: record.id },
           data: {
             emailSent: true,

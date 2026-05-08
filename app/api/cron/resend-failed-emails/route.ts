@@ -1,12 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import { sendBirthdayGreetingEmail } from "@/lib/email";
-
+export const runtime = "nodejs";
 export async function GET() {
   try {
     console.log("[CRON] Retrying failed birthday emails...");
 
     // 👉 Get all failed emails
-    const failedRecords = await prisma.birthdayRecord.findMany({
+    const failedRecords = await prisma.birthdayrecord.findMany({
       where: {
         emailSent: false
       },
@@ -26,7 +26,7 @@ export async function GET() {
         );
 
         // ✅ mark as sent
-        await prisma.birthdayRecord.update({
+        await prisma.birthdayrecord.update({
           where: { id: record.id },
           data: {
             emailSent: true,

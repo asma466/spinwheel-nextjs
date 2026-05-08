@@ -136,7 +136,7 @@
 import { generateSpinToken } from "@/lib/spinToken";
 import { prisma } from "@/lib/prisma";
 import { sendBirthdayGreetingEmail } from "@/lib/email";
-
+export const runtime = "nodejs";
 export async function GET(req: Request) {
   try {
     const today = new Date();
@@ -178,7 +178,7 @@ export async function GET(req: Request) {
         }
 
         // 🔒 Check if already sent this year
-        const existing = await prisma.birthdayRecord.findUnique({
+        const existing = await prisma.birthdayrecord.findUnique({
           where: {
             employeeId_year: {
               employeeId: emp.id,
@@ -195,7 +195,7 @@ export async function GET(req: Request) {
         // 🎁 Generate spin token + record
         const token = generateSpinToken();
 
-        const record = await prisma.birthdayRecord.create({
+        const record = await prisma.birthdayrecord.create({
           data: {
             year,
             employeeId: emp.id,

@@ -42,14 +42,14 @@
 //         },
 //       }),
 
-//       prisma.birthdayRecord.count({
+//       prisma.birthdayrecord.count({
 //         where: {
 //           emailSent: false,
 //           year: today.getUTCFullYear(),
 //         },
 //       }),
 
-//       prisma.birthdayRecord.findMany({
+//       prisma.birthdayrecord.findMany({
 //         where: {
 //           giftReceived: { isNot: null },
 //         },
@@ -94,7 +94,7 @@
 
 //     const todayBirthdayIds = todayBirthdays.map((emp) => emp.id);
 
-//     const birthdayRecords = await prisma.birthdayRecord.findMany({
+//     const birthdayRecords = await prisma.birthdayrecord.findMany({
 //       where: {
 //         employeeId: { in: todayBirthdayIds },
 //         year: today.getUTCFullYear(),
@@ -120,6 +120,8 @@
 // }
 
 
+
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -129,7 +131,7 @@ type EmployeeWithDob = {
   department: string;
   dob: Date | null;
 };
-
+export const runtime = "nodejs";
 export async function GET() {
   try {
     const today = new Date();
@@ -142,14 +144,21 @@ export async function GET() {
       pendingEmails,
       recentGiftActivity,
     ] = await Promise.all([
+
+      // ✅ Total Employees
       prisma.employee.count(),
 
+      // ✅ Available Gifts
       prisma.gift.count({
-        where: { available: true },
+        where: {
+          available: true,
+        },
       }),
 
+      // ✅ Total Gifts
       prisma.gift.count(),
 
+      // ✅ Employees with DOB
       prisma.employee.findMany({
         select: {
           id: true,
@@ -159,20 +168,26 @@ export async function GET() {
         },
       }),
 
-      prisma.birthdayRecord.count({
+      // ✅ Pending Emails
+      prisma.birthdayrecord.count({
         where: {
           emailSent: false,
           year: today.getUTCFullYear(),
         },
       }),
 
-      prisma.birthdayRecord.findMany({
+      // ✅ Recent Gift Activity
+      prisma.birthdayrecord.findMany({
         where: {
-          giftReceived: { isNot: null },
+          giftReceivedId: {
+            not: null,
+          },
         },
+
         include: {
           employee: true,
-          giftReceived: {
+
+          gift: {
             select: {
               id: true,
               name: true,
@@ -181,16 +196,18 @@ export async function GET() {
             },
           },
         },
+
         orderBy: {
           giftReceivedAt: "desc",
         },
+
         take: 5,
       }),
     ]);
 
-    // 🔥 Filter today's birthdays safely
-    const todayBirthdays = (employeesWithDob as EmployeeWithDob[]).filter(
-      (emp) => {
+    // ✅ Today's Birthdays
+    const todayBirthdays = employeesWithDob.filter(
+      (emp: EmployeeWithDob) => {
         if (!emp.dob) return false;
 
         const dob = new Date(emp.dob);
@@ -202,14 +219,18 @@ export async function GET() {
       }
     );
 
-    // ✅ safe mapping (no implicit any)
+    // ✅ Get employee IDs
     const todayBirthdayIds = todayBirthdays.map(
       (emp: EmployeeWithDob) => emp.id
     );
 
-    const birthdayRecords = await prisma.birthdayRecord.findMany({
+    // ✅ Birthday Records
+    const birthdayRecords = await prisma.birthdayrecord.findMany({
       where: {
-        employeeId: { in: todayBirthdayIds },
+        employeeId: {
+          in: todayBirthdayIds,
+        },
+
         year: today.getUTCFullYear(),
       },
     });
@@ -223,11 +244,17 @@ export async function GET() {
       recentGiftActivity,
       birthdayRecords,
     });
+
   } catch (error) {
     console.error("Dashboard Error:", error);
+
     return NextResponse.json(
-      { message: "Failed to fetch dashboard data" },
-      { status: 500 }
+      {
+        message: "Failed to fetch dashboard data",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }

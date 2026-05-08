@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendwinMail } from '@/lib/email';
-
+export const runtime = "nodejs";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -19,11 +19,11 @@ export async function POST(request: NextRequest) {
 
     const recordId = parseInt(id); // Parse id once
 
-    const birthdayRecord = await prisma.birthdayRecord.findUnique({
+    const birthdayRecord = await prisma.birthdayrecord.findUnique({
       where: { id: recordId },
       include: {
         employee: true,
-        giftReceived: true,
+        // giftReceived: true,
       },
     });
 
@@ -38,14 +38,14 @@ export async function POST(request: NextRequest) {
 
     // Wait, since /api/spinwheel already updated this, we don't need to mark spinCompleted here.
     // However, if giftReceivedId is missing, we can try to fix it, but let's just use it to send email.
-    const updatedRecord = await prisma.birthdayRecord.update({
+    const updatedRecord = await prisma.birthdayrecord.update({
       where: { id: parseInt(id) },
       data: {
         giftReceivedAt: new Date(),
       },
       include: {
         employee: true,
-        giftReceived: true,
+        // giftReceived: true,
       },
     });
 

@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendBirthdayGreetingEmail } from '@/lib/email';
-
+export const runtime = "nodejs";
 export async function GET() {
   try {
-    const records = await prisma.birthdayRecord.findMany({
+    const records = await prisma.birthdayrecord.findMany({
       include: {
         employee: true,
-        giftReceived: true,
+        // giftReceived: true,
+        gift: true,
       },
       orderBy: {
         createdAt: 'desc',
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
     console.log(`[API LOG] Found employee: ${employee.name} (${employee.email})`);
 
     // Create or update birthday record
-    const record = await prisma.birthdayRecord.upsert({
+    const record = await prisma.birthdayrecord.upsert({
       where: { employeeId_year: { employeeId, year } },
       update: { emailSent: true },
       create: { employeeId, year, emailSent: true },

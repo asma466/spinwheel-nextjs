@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateRandomString, sendMail } from '@/lib/email';
-
+export const runtime = "nodejs";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -34,14 +34,16 @@ export async function POST(request: NextRequest) {
 
     // Create birthday record for current year
     const currentYear = new Date().getFullYear();
-    const tenstringid = generateRandomString();
+    // const tenstringid = generateRandomString();
 
-    const birthdayRecord = await prisma.birthdayRecord.create({
+    const birthdayRecord = await prisma.birthdayrecord.create({
       data: {
         year: currentYear,
         employeeId: employee.id,
         emailSent: false,
         spinCompleted: false,
+         updatedAt: new Date(), // ✅ FIX
+  
       },
     });
 
@@ -49,7 +51,7 @@ export async function POST(request: NextRequest) {
     await sendMail(name, email, `${birthdayRecord.id}`);
 
     // Update to mark email as sent
-    await prisma.birthdayRecord.update({
+    await prisma.birthdayrecord.update({
       where: { id: birthdayRecord.id },
       data: { emailSent: true },
     });
