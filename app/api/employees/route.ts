@@ -305,8 +305,6 @@
 
 
 
-import { PrismaClient } from "@prisma/client";
-
 import { authOptions } from "../auth/[...nextauth]/options";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
