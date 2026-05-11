@@ -19,23 +19,26 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is not set.");
-}
-
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
 };
 
-const adapter = new PrismaMariaDb(databaseUrl);
+const createPrismaClient = () => {
+  const connectionString = process.env.DATABASE_URL;
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    adapter,
-  });
+  if (!connectionString) {
+    // During build time on Vercel, DATABASE_URL might be missing.
+    // We return a client without an adapter if we can't create one, 
+    // or we could use a dummy string for the adapter to allow instantiation.
+    // Since the schema has no datasource URL, Prisma 7 requires an adapter or a URL.
+    return new PrismaClient();
+  }
+
+  const adapter = new PrismaMariaDb(connectionString);
+  return new PrismaClient({ adapter });
+};
+
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;

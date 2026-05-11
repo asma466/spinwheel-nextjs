@@ -18,11 +18,15 @@ export async function proxy(req: NextRequest) {
   // }
 
     // Skip auth in development
-  if (process.env.NODE_ENV === "development") {
-    return NextResponse.next();
-  }
+  // if (process.env.NODE_ENV === "development") {
+  //   return NextResponse.next();
+  // }
 
  
+  // ✅ BYPASS AUTH
+  if (process.env.NEXT_PUBLIC_BYPASS_AUTH === "true") {
+    return NextResponse.next();
+  }
   const isDashboard = req.nextUrl.pathname.startsWith("/dashboard");
 
   if (!token && isDashboard) {
