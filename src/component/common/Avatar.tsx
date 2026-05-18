@@ -37,6 +37,8 @@
 // components/Avatar.tsx
 import React from "react";
 
+import Image from "next/image";
+
 interface AvatarProps {
   name: string;
   imageUrl?: string;
@@ -56,13 +58,15 @@ const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
     return (
       <div
         ref={ref}
-        className="rounded-full flex items-center justify-center bg-primary/10 cursor-pointer border-none p-0 focus:outline-none"
+        className="rounded-full flex items-center justify-center bg-primary/10 cursor-pointer border-none p-0 focus:outline-none overflow-hidden"
         style={{ width: size, height: size }}
       >
         {imageUrl ? (
-          <img
+          <Image
             src={imageUrl}
             alt={name}
+            width={size}
+            height={size}
             className="rounded-full object-cover w-full h-full"
           />
         ) : (

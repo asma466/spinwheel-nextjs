@@ -20,7 +20,7 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
  const togglePassword = () => setShowPassword(prev => !prev);
 const { data: session } = useSession();
-console.log(session?.user?.role);
+// console.log(session?.user?.role);
 
 
   // Redirect if already logged in

@@ -26,8 +26,29 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "wheelspin Dashboard",
+  title: {
+    default: "wheelspin Dashboard",
+    template: "%s | wheelspin Dashboard",
+  },
   description: "Admin dashboard for managing wheelspin gifts and users",
+  keywords: ["wheelspin", "dashboard", "admin", "gifts", "employees"],
+  authors: [{ name: "Zetatech" }],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://wheelspin.zetatech.com.pk",
+    title: "wheelspin Dashboard",
+    description: "Admin dashboard for managing wheelspin gifts and users",
+    siteName: "wheelspin Dashboard",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "wheelspin Dashboard",
+    description: "Admin dashboard for managing wheelspin gifts and users",
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 // const queryClient = new QueryClient(); // ← Create an instance

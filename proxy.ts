@@ -4,42 +4,53 @@ import type { NextRequest } from "next/server";
 
 export async function proxy(req: NextRequest) {
   const token = await getToken({ req });
+  const { pathname } = req.nextUrl;
 
-  // const isDashboard = req.nextUrl.pathname.startsWith("/dashboard");
+  // 1. Redirect root to dashboard
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
 
-  // // ❌ Not logged in
-  // if (!token && isDashboard) {
-  //   return NextResponse.redirect(new URL("/", req.url));
-  // }
-
-  // // ❌ Not ADMIN
-  // if (isDashboard && token?.role !== "ADMIN") {
-  //   return NextResponse.redirect(new URL("/", req.url));
-  // }
-
-    // Skip auth in development
-  // if (process.env.NODE_ENV === "development") {
-  //   return NextResponse.next();
-  // }
-
- 
-  // ✅ BYPASS AUTH
+  // 2. Bypass auth if configured
   if (process.env.NEXT_PUBLIC_BYPASS_AUTH === "true") {
     return NextResponse.next();
   }
-  const isDashboard = req.nextUrl.pathname.startsWith("/dashboard");
 
-  if (!token && isDashboard) {
-    return NextResponse.redirect(new URL("/", req.url));
-  }
+  // 3. Define protected routes
+  const protectedRoutes = [
+    "/dashboard",
+    "/employees",
+    "/gifts",
+    "/settings",
+    "/today-birthday",
+    "/test-birthday"
+  ];
 
-  if (isDashboard && token?.role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/", req.url));
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+
+  if (isProtectedRoute) {
+    // ❌ Not logged in -> Redirect to login
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+
+    // ❌ Not ADMIN -> Redirect to login (or access denied page)
+    if (token?.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: [
+    "/",
+    "/dashboard/:path*",
+    "/employees/:path*",
+    "/gifts/:path*",
+    "/settings/:path*",
+    "/today-birthday/:path*",
+    "/test-birthday/:path*",
+  ],
 };

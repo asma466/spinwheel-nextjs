@@ -140,7 +140,7 @@ export async function GET() {
       totalEmployees,
       availableGifts,
       totalGifts,
-      employeesWithDob,
+      todayBirthdays,
       pendingEmails,
       recentGiftActivity,
     ] = await Promise.all([
@@ -158,15 +158,13 @@ export async function GET() {
       // ✅ Total Gifts
       prisma.gift.count(),
 
-      // ✅ Employees with DOB
-      prisma.employee.findMany({
-        select: {
-          id: true,
-          name: true,
-          department: true,
-          dob: true,
-        },
-      }),
+      // ✅ Employees with DOB today (Optimized for MySQL)
+      prisma.$queryRaw<EmployeeWithDob[]>`
+        SELECT id, name, department, dob 
+        FROM employee 
+        WHERE MONTH(dob) = MONTH(CURRENT_DATE()) 
+        AND DAY(dob) = DAY(CURRENT_DATE())
+      `,
 
       // ✅ Pending Emails
       prisma.birthdayrecord.count({
@@ -205,20 +203,6 @@ export async function GET() {
       }),
     ]);
 
-    // ✅ Today's Birthdays
-    const todayBirthdays = employeesWithDob.filter(
-      (emp: EmployeeWithDob) => {
-        if (!emp.dob) return false;
-
-        const dob = new Date(emp.dob);
-
-        return (
-          dob.getUTCMonth() === today.getUTCMonth() &&
-          dob.getUTCDate() === today.getUTCDate()
-        );
-      }
-    );
-
     // ✅ Get employee IDs
     const todayBirthdayIds = todayBirthdays.map(
       (emp: EmployeeWithDob) => emp.id
@@ -246,15 +230,11 @@ export async function GET() {
     });
 
   } catch (error) {
+    // Keep error logging but maybe refine it
     console.error("Dashboard Error:", error);
-
     return NextResponse.json(
-      {
-        message: "Failed to fetch dashboard data",
-      },
-      {
-        status: 500,
-      }
+      { message: "Failed to fetch dashboard data" },
+      { status: 500 }
     );
   }
 }

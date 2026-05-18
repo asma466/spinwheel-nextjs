@@ -1,13 +1,5 @@
-'use client'
-import { LoginForm } from '@/src/component/login/login'
-import React from 'react'
+import { redirect } from 'next/navigation';
 
-const page = () => {
-  return (
-    <div>
-      <LoginForm/>
-    </div>
-  )
+export default function RootPage() {
+  redirect('/dashboard');
 }
-
-export default page
