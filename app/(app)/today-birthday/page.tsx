@@ -342,8 +342,8 @@ const meta = data?.meta;
 
         // emailSent: record?.emailSent || false,
         spinCompleted: record?.spinCompleted || false,
-        giftReceived: record?.giftReceived || null,
-giftReceivedAt: record?.giftReceivedAt || null,
+        giftReceived: record?.gift || null,
+        giftReceivedAt: record?.giftReceivedAt || null,
       };
     });
   }, [employees, recordMap, currentYear, today]);
@@ -414,12 +414,12 @@ const lastYearGiftMap = useMemo(() => {
   const map = new Map<number, string>();
 
   records.forEach((record: any) => {
-    if (!record.giftReceived) return;
+    if (!record.gift) return;
 
     const year = record.year ?? new Date(record.createdAt).getFullYear();
 
     if (year === previousYear) {
-      map.set(Number(record.employeeId), record.giftReceived.name);
+      map.set(Number(record.employeeId), record.gift.name);
     }
   });
 

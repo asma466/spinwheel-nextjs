@@ -1,15 +1,43 @@
 // import { PrismaClient } from "@prisma/client";
+// import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
-// const globalForPrisma = global as unknown as { prisma: PrismaClient };
+// const globalForPrisma = globalThis as unknown as {
+//   prisma?: PrismaClient;
+// };
 
-// // export const prisma =
-// //   globalForPrisma.prisma || new PrismaClient();
+// const createPrismaClient = () => {
+//   const connectionString = process.env.DATABASE_URL;
 
-// export const prisma =
-//   globalForPrisma.prisma ??
-//   new PrismaClient({
-//     log: ["error", "warn"],
-//   });
+//   if (!connectionString) {
+//     // During build time on Vercel, DATABASE_URL might be missing.
+//     return new PrismaClient();
+//   }
+
+//   // The mariadb driver explicitly requires 'mariadb://' protocol
+//   const mariadbUrl = connectionString.replace(/^mysql:\/\//, 'mariadb://');
+//   const adapter = new PrismaMariaDb(mariadbUrl);
+//   return new PrismaClient({ adapter });
+// };
+
+// export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+
+// if (process.env.NODE_ENV !== "production") {
+//   globalForPrisma.prisma = prisma;
+// }
+
+// import { PrismaClient } from "@prisma/client";
+
+// const prismaClientSingleton = () => {
+//   return new PrismaClient();
+// };
+
+// type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;
+
+// const globalForPrisma = globalThis as unknown as {
+//   prisma: PrismaClientSingleton | undefined;
+// };
+
+// export const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
 
 // if (process.env.NODE_ENV !== "production") {
 //   globalForPrisma.prisma = prisma;
@@ -43,21 +71,3 @@ export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }
-
-// import { PrismaClient } from "@prisma/client"
-// import { PrismaMariaDb } from "@prisma/adapter-mariadb"
-
-// const adapter = new PrismaMariaDb(process.env.DATABASE_URL as string)
-
-// declare global {
-//   var prisma: PrismaClient | undefined
-// }
-
-// export const prisma =
-//   globalThis.prisma ??
-//   new PrismaClient({ adapter })
-
-// if (process.env.NODE_ENV !== "production") {
-//   globalThis.prisma = prisma
-// }
-

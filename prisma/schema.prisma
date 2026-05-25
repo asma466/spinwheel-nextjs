@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "mysql"
-
 }
 
 model birthdayrecord {
@@ -16,8 +15,7 @@ model birthdayrecord {
   giftReceivedId Int?
   giftReceivedAt DateTime?
   createdAt      DateTime  @default(now())
-  
-  updatedAt DateTime @updatedAt
+  updatedAt      DateTime  @updatedAt
   spinToken      String?   @unique(map: "BirthdayRecord_spinToken_key")
   tokenExpiresAt DateTime?
   autoEmail      Boolean   @default(false)
@@ -30,17 +28,17 @@ model birthdayrecord {
 }
 
 model employee {
-  id             Int              @id @default(autoincrement())
-  name           String
-  email          String           @unique(map: "Employee_email_key")
-  dob            DateTime         @default(now())
-  department     String
-  createdAt      DateTime         @default(now())
-  role           employee_role?   @default(USER)
-  updatedAt      DateTime         @default(now())
-  password       String?
-  birthdayrecord birthdayrecord[]
-   birthdayEmailSentYear    Int?
+  id                    Int              @id @default(autoincrement())
+  name                  String
+  email                 String           @unique(map: "Employee_email_key")
+  dob                   DateTime         @default(now())
+  department            String
+  createdAt             DateTime         @default(now())
+  role                  employee_role?   @default(USER)
+  updatedAt             DateTime         @default(now())
+  password              String?
+  birthdayEmailSentYear Int?
+  birthdayrecord        birthdayrecord[]
 }
 
 model gift {
@@ -50,7 +48,7 @@ model gift {
   createdAt      DateTime         @default(now())
   imageUrl       String?
   quantity       Int              @default(0)
-  updatedAt      DateTime        @updatedAt
+  updatedAt      DateTime         @updatedAt
   birthdayrecord birthdayrecord[]
 }
 

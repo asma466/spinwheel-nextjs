@@ -452,15 +452,15 @@ export default function Employees() {
   };
 
   const columns = [
-     {
-    key: "no",
-    header: "No",
-    render: (_: Employee, index: number) => (
-      <span className="text-muted-foreground">
-        {(page - 1) * (meta?.limit ?? 10) + index + 1}
-      </span>
-    ),
-  },
+    {
+      key: "no",
+      header: "No",
+      render: (_: Employee, index: number) => (
+        <span className="text-muted-foreground">
+          {(page - 1) * (meta?.limit ?? 10) + index + 1}
+        </span>
+      ),
+    },
     {
       key: "name",
       header: "Employee",
@@ -476,10 +476,25 @@ export default function Employees() {
       header: "Department",
     },
     {
+      key: "role",
+      header: "Role",
+      render: (emp: Employee) => (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+            emp.role === "ADMIN"
+              ? "bg-red-100 text-[#CE1B22]"
+              : "bg-gray-100 text-gray-700"
+          }`}
+        >
+          {emp.role || "USER"}
+        </span>
+      ),
+    },
+    {
       key: "dob",
       header: "Birthday",
-     render: (emp: Employee) =>
-  emp.dob ? format(new Date(emp.dob), "MMM d, yyyy") : "—",
+      render: (emp: Employee) =>
+        emp.dob ? format(new Date(emp.dob), "MMM d, yyyy") : "—",
     },
     {
       key: "actions",
@@ -539,9 +554,9 @@ export default function Employees() {
       </div>
 
       {isLoading ? (
-         <div className="flex justify-center items-center h-100">
-                 <Loader />
-               </div>
+        <div className="flex justify-center items-center h-100">
+          <Loader />
+        </div>
       ) : employees.length ? (
         <>
           <DataTable data={employees} columns={columns} />
@@ -607,70 +622,70 @@ export default function Employees() {
   </div>
 </div> */}
 
-  {/* Shadcn Pagination */}
-      {/* Shadcn Pagination */}
-<div className="flex justify-end mt-6">
-  <Pagination>
-    <PaginationContent>
-      {/* Previous */}
-      <PaginationItem>
-        <PaginationPrevious
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            if (page === 1) return;
-            setPage(page - 1);
-          }}
-          className={page === 1 ? "pointer-events-none opacity-50" : ""}
-        />
-      </PaginationItem>
+          {/* Shadcn Pagination */}
+          {/* Shadcn Pagination */}
+          <div className="flex justify-end mt-6">
+            <Pagination>
+              <PaginationContent>
+                {/* Previous */}
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (page === 1) return;
+                      setPage(page - 1);
+                    }}
+                    className={page === 1 ? "pointer-events-none opacity-50" : ""}
+                  />
+                </PaginationItem>
 
-      {/* Page Numbers */}
-      {[...Array(meta?.totalPages || 1)].map((_, i) => {
-        const pageNumber = i + 1;
+                {/* Page Numbers */}
+                {[...Array(meta?.totalPages || 1)].map((_, i) => {
+                  const pageNumber = i + 1;
 
-        return (
-          <PaginationItem key={pageNumber}>
-            <PaginationLink
-              href="#"
-              isActive={page === pageNumber}
-              onClick={(e) => {
-                e.preventDefault();
-                setPage(pageNumber);
-              }}
-            >
-              {pageNumber}
-            </PaginationLink>
-          </PaginationItem>
-        );
-      })}
+                  return (
+                    <PaginationItem key={pageNumber}>
+                      <PaginationLink
+                        href="#"
+                        isActive={page === pageNumber}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setPage(pageNumber);
+                        }}
+                      >
+                        {pageNumber}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
 
-      {/* Optional Ellipsis (only visual, not functional here) */}
-      {meta?.totalPages && meta.totalPages > 5 && (
-        <PaginationItem>
-          <PaginationEllipsis />
-        </PaginationItem>
-      )}
+                {/* Optional Ellipsis (only visual, not functional here) */}
+                {meta?.totalPages && meta.totalPages > 5 && (
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                )}
 
-      {/* Next */}
-      <PaginationItem>
-        <PaginationNext
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            if (page === meta?.totalPages) return;
-            setPage(page + 1);
-          }}
-          className={
-            page === meta?.totalPages
-              ? "pointer-events-none opacity-50"
-              : ""
-          }
-        />
-      </PaginationItem>
-    </PaginationContent>
-  </Pagination>
-</div>
+                {/* Next */}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (page === meta?.totalPages) return;
+                      setPage(page + 1);
+                    }}
+                    className={
+                      page === meta?.totalPages
+                        ? "pointer-events-none opacity-50"
+                        : ""
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </>
       ) : (
         <EmptyState
@@ -690,14 +705,14 @@ export default function Employees() {
         onConfirm={handleDelete}
       /> */}
       <ConfirmDialog
-  open={!!deleteEmployee}
-  onOpenChange={() => setDeleteEmployee(null)}
-  title="Delete Employee"
-  description={`Are you sure you want to delete ${deleteEmployee?.name}?`}
-  confirmLabel="Delete"
-  variant="destructive"
-  onConfirm={handleDelete}
-/>
+        open={!!deleteEmployee}
+        onOpenChange={() => setDeleteEmployee(null)}
+        title="Delete Employee"
+        description={`Are you sure you want to delete ${deleteEmployee?.name}?`}
+        confirmLabel="Delete"
+        variant="destructive"
+        onConfirm={handleDelete}
+      />
 
       <EmployeeModal
         open={isModalOpen}

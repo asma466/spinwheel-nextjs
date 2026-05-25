@@ -60,9 +60,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={montserrat.variable}>
       <body
-      
-       suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans` }
+
+        suppressHydrationWarning
+        className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
       >
         {/* <SessionProvider>
         <ReactQueryProvider>

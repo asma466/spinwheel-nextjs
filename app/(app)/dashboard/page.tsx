@@ -414,7 +414,7 @@ export default function Dashboard() {
                             </StatusBadge>
                           ) : (
                             <StatusBadge status="pending">
-                              Pending
+                              Email Not Sent
                             </StatusBadge>
                           )}
                         </div>

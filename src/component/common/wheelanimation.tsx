@@ -116,7 +116,7 @@ const WheelComponent = ({
 
       if (data.alreadySpun) {
         console.warn('[WHEEL COMPONENT] ⚠️ You have already spun the wheel');
-        alert('You have already spun the wheel this year. Come back next year!');
+        // alert('You have already spun the wheel this year. Come back next year!');
         setOpenSnackbar(true);
         if (data.prize) {
           // Already spun, so fake finish with old prize
