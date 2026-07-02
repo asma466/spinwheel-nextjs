@@ -7,7 +7,6 @@ export const useBirthdayRecords = () =>
     queryKey: ['birthdayRecords'],
     queryFn: async () => {
       const res = await axios.get('/api/birthday_record');
-        console.log('Birthday Records API response:', res.data); // <-- log here
       return res.data;
     },
   });
@@ -16,10 +15,8 @@ export const useSendBirthdayEmail = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (employeeId: string) => {
+    mutationFn: async (employeeId: number) => {
       const res = await axios.post('/api/birthday_record', { employeeId });
-            console.log('Employees API response:', res.data); // <-- log here
-
       return res.data;
     },
     onSuccess: () => {

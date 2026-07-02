@@ -755,7 +755,7 @@ export default function Gifts() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleEditGift(gift)}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-[#CE1B22] hover:bg-red-100 hover:text-[#CE1B22]"
                   >
                     <Edit2 className="w-4 h-4" />
                   </Button>
@@ -764,7 +764,7 @@ export default function Gifts() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setDeleteGift(gift)}
-                    className="text-muted-foreground hover:text-destructive"
+                    className="text-[#CE1B22] hover:bg-red-100 hover:text-[#CE1B22]"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>

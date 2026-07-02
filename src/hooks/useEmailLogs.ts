@@ -1,126 +1,108 @@
-// 'use client';
+'use client';
 
-// import useSWR from 'swr';
-// import { useState } from 'react';
-// import axios from 'axios';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 
-// export interface EmailLog {
-//   id: string;
-//   employeeId: number;
-//   employeeName: string;
-//   employeeEmail: string;
-//   subject: string;
-//   status: 'pending' | 'sent' | 'failed';
-//   sentAt?: string;
-//   failureReason?: string;
-//   retryCount: number;
-//   maxRetries: number;
-//   createdAt: string;
-//   updatedAt: string;
-// }
+export interface EmailLog {
+  id: string;
+  employeeId: number;
+  employeeName: string;
+  employeeEmail: string;
+  subject: string;
+  status: 'pending' | 'sent' | 'failed';
+  sentAt?: string;
+  failureReason?: string;
+  retryCount: number;
+  maxRetries: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
-// interface EmailLogsResponse {
-//   success: boolean;
-//   total: number;
-//   data: EmailLog[];
-// }
+interface EmailLogsResponse {
+  success: boolean;
+  total: number;
+  data: EmailLog[];
+}
 
-// interface EmailLogsFilters {
-//   status?: string;
-//   employeeId?: number;
-//   dateFrom?: string;
-//   dateTo?: string;
-//   limit?: number;
-// }
+interface EmailLogsFilters {
+  status?: string;
+  employeeId?: number;
+  dateFrom?: string;
+  dateTo?: string;
+  limit?: number;
+}
 
-// const fetcher = (url: string) =>
-//   axios.get(url).then((res) => res.data);
+function buildEmailLogsUrl(filters?: EmailLogsFilters): string {
+  const queryParams = new URLSearchParams();
 
-// /**
-//  * Hook to fetch email logs with optional filters
-//  */
-// export function useEmailLogs(filters?: EmailLogsFilters) {
-//   const queryParams = new URLSearchParams();
+  if (filters?.status) queryParams.append('status', filters.status);
+  if (filters?.employeeId) queryParams.append('employeeId', String(filters.employeeId));
+  if (filters?.dateFrom) queryParams.append('dateFrom', filters.dateFrom);
+  if (filters?.dateTo) queryParams.append('dateTo', filters.dateTo);
+  if (filters?.limit) queryParams.append('limit', String(filters.limit));
 
-//   if (filters?.status) queryParams.append('status', filters.status);
-//   if (filters?.employeeId) queryParams.append('employeeId', String(filters.employeeId));
-//   if (filters?.dateFrom) queryParams.append('dateFrom', filters.dateFrom);
-//   if (filters?.dateTo) queryParams.append('dateTo', filters.dateTo);
-//   if (filters?.limit) queryParams.append('limit', String(filters.limit));
+  const query = queryParams.toString();
+  return query ? `/api/send-birthday-emails?${query}` : '/api/send-birthday-emails';
+}
 
-//   const query = queryParams.toString();
-//   const url = query ? `/api/send-birthday-emails?${query}` : '/api/send-birthday-emails';
+export function useEmailLogs(filters?: EmailLogsFilters) {
+  const url = buildEmailLogsUrl(filters);
 
-//   const { data, error, isLoading, mutate } = useSWR<EmailLogsResponse>(
-//     url,
-//     fetcher,
-//     {
-//       revalidateOnFocus: false,
-//       revalidateOnReconnect: true,
-//       dedupingInterval: 60000, // 1 minute
-//       focusThrottleInterval: 300000, // 5 minutes
-//     }
-//   );
+  const query = useQuery<EmailLogsResponse>({
+    queryKey: ['email-logs', filters],
+    queryFn: async () => {
+      const response = await axios.get<EmailLogsResponse>(url);
+      return response.data;
+    },
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
 
-//   return {
-//     emailLogs: data?.data || [],
-//     total: data?.total || 0,
-//     isLoading,
-//     error,
-//     mutate,
-//   };
-// }
+  return {
+    emailLogs: query.data?.data ?? [],
+    total: query.data?.total ?? 0,
+    isLoading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
+  };
+}
 
-// /**
-//  * Hook to get email statistics
-//  */
-// export function useEmailStats() {
-//   const { emailLogs, isLoading, error } = useEmailLogs({ limit: 1000 });
+export function useEmailStats() {
+  const { emailLogs, isLoading, error } = useEmailLogs({ limit: 1000 });
 
-//   const stats = {
-//     total: emailLogs.length,
-//     sent: emailLogs.filter((log: EmailLog) => log.status === 'sent').length,
-//     failed: emailLogs.filter((log: EmailLog) => log.status === 'failed').length,
-//     pending: emailLogs.filter((log: EmailLog) => log.status === 'pending').length,
-//     successRate: emailLogs.length > 0
-//       ? ((emailLogs.filter((log: EmailLog) => log.status === 'sent').length / emailLogs.length) * 100).toFixed(1)
-//       : 0,
-//   };
+  const sentCount = emailLogs.filter((log) => log.status === 'sent').length;
+  const failedCount = emailLogs.filter((log) => log.status === 'failed').length;
+  const pendingCount = emailLogs.filter((log) => log.status === 'pending').length;
 
-//   return {
-//     stats,
-//     isLoading,
-//     error,
-//   };
-// }
+  return {
+    stats: {
+      total: emailLogs.length,
+      sent: sentCount,
+      failed: failedCount,
+      pending: pendingCount,
+      successRate:
+        emailLogs.length > 0 ? ((sentCount / emailLogs.length) * 100).toFixed(1) : '0.0',
+    },
+    isLoading,
+    error,
+  };
+}
 
-// /**
-//  * Hook to manually trigger birthday email sending
-//  */
-// export function useSendBirthdayEmails() {
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState<string | null>(null);
+export function useSendBirthdayEmails() {
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const response = await axios.post('/api/send-birthday-emails', {}, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data;
+    },
+  });
 
-//   const trigger = async () => {
-//     setLoading(true);
-//     setError(null);
-
-//     try {
-//       const response = await axios.post('/api/send-birthday-emails', {}, {
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//       });
-
-//       return response.data;
-//     } catch (err) {
-//       const message = err instanceof Error ? err.message : 'Failed to send emails';
-//       setError(message);
-//       throw err;
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return { trigger, loading, error };
-// }
+  return {
+    trigger: mutation.mutateAsync,
+    loading: mutation.isPending,
+    error: mutation.error,
+  };
+}

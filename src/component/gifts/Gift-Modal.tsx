@@ -10,7 +10,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 
 interface GiftModalProps {
@@ -24,35 +23,42 @@ interface GiftModalProps {
 const initialFormData = {
   name: '',
   quantity: 1,
- 
   available: true,
 };
 
-export function GiftModal({ open, onOpenChange, gift, onSave,  }: GiftModalProps) {
-  const [formData, setFormData] = useState(initialFormData);
+function getGiftFormData(gift: Gift | null) {
+  if (!gift) {
+    return { ...initialFormData };
+  }
 
+  return {
+    name: gift.name,
+    quantity: gift.quantity,
+    available: gift.available,
+  };
+}
 
+export function GiftModal({ open, onOpenChange, gift, onSave }: GiftModalProps) {
+  const [formData, setFormData] = useState(() => getGiftFormData(gift));
+
+  // ✅ Reset form when modal opens or gift changes
   useEffect(() => {
-    if (gift) {
-      setFormData({
-        name: gift.name,
-        quantity: gift.quantity,
-       
-        available: gift.available,
-      });
-    } else {
-      setFormData(initialFormData);
+    if (open) {
+      setFormData(getGiftFormData(gift));
     }
+  }, [open, gift]);
 
-  }, [gift, open]);
+  const handleDialogChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      setFormData({ ...initialFormData });
+    }
+    onOpenChange(nextOpen);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    onSave({
-      ...formData,
-     
-    });
+    onSave(formData);
+    setFormData({ ...initialFormData });
   };
 
   const handleChange = (field: string, value: string | number | boolean) => {
@@ -65,19 +71,20 @@ export function GiftModal({ open, onOpenChange, gift, onSave,  }: GiftModalProps
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card max-w-md">
+    <Dialog open={open} onOpenChange={handleDialogChange}>
+      <DialogContent className="bg-card max-w-md [&>button]:!border-0 [&>button]:!bg-transparent [&>button]:focus:outline-none [&>button]:focus:ring-0" onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>
             {gift ? 'Edit Gift' : 'Add New Gift'}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" >
           <div className="space-y-2">
             <Label htmlFor="name">Gift Name</Label>
             <Input
               id="name"
+              autoFocus={false}
               value={formData.name}
               onChange={(e) => handleChange('name', e.target.value)}
               placeholder="Enter Gift Name"
@@ -158,6 +165,7 @@ export function GiftModal({ open, onOpenChange, gift, onSave,  }: GiftModalProps
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              className="text-red-700 border-red-700 hover:text-red-800 hover:border-red-800 hover:bg-red-50"
             >
               Cancel
             </Button>

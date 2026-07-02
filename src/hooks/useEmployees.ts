@@ -201,7 +201,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Employee } from "@/src/types";
 
 interface EmployeeFormData {
@@ -222,33 +222,36 @@ const emptyForm: EmployeeFormData = {
   password: "",
 };
 
+export function getEmployeeFormData(employee: Employee | null): EmployeeFormData {
+  if (!employee) {
+    return { ...emptyForm };
+  }
+
+  const role = employee.role === "ADMIN" || employee.role === "USER" ? employee.role : "";
+
+  return {
+    name: employee.name ?? "",
+    email: employee.email ?? "",
+    department: employee.department ?? "",
+    dob: employee.dob ? new Date(employee.dob).toISOString().split("T")[0] : "",
+    role,
+    password: "",
+  };
+}
+
 export const useEmployeeForm = (employee: Employee | null = null) => {
-  const [formData, setFormData] = useState<EmployeeFormData>(emptyForm);
-
-  useEffect(() => {
-    if (!employee) {
-      setFormData(emptyForm);
-      return;
-    }
-
-    setFormData({
-      name: employee.name ?? "",
-      email: employee.email ?? "",
-      department: employee.department ?? "",
-      dob: employee.dob
-        ? new Date(employee.dob).toISOString().split("T")[0]
-        : "",
-      role: (employee.role as "ADMIN" | "USER") ?? "",
-      password: "", // never preload password
-    });
-  }, [employee]);
+  const [formData, setFormData] = useState<EmployeeFormData>(() => getEmployeeFormData(employee));
 
   const handleChange = useCallback(
     (field: keyof EmployeeFormData, value: string) => {
       setFormData((prev) => {
         // Clear password if switching away from ADMIN
         if (field === "role" && value !== "ADMIN") {
-          return { ...prev, role: value as any, password: "" };
+          return { ...prev, role: value === "USER" ? "USER" : "", password: "" };
+        }
+
+        if (field === "role") {
+          return { ...prev, role: value === "ADMIN" ? "ADMIN" : value === "USER" ? "USER" : "" };
         }
 
         return { ...prev, [field]: value };

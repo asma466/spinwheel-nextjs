@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { generateRandomString, sendMail } from '@/lib/email';
+import { sendMail } from '@/lib/email';
 export const runtime = "nodejs";
 export async function POST(request: NextRequest) {
   try {

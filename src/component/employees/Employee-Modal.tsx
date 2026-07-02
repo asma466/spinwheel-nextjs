@@ -176,7 +176,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { useEmployeeForm } from "@/src/hooks/useEmployees";
+import { getEmployeeFormData, useEmployeeForm } from "@/src/hooks/useEmployees";
 import {
   useCreateEmployee,
   useUpdateEmployee,
@@ -248,14 +248,11 @@ export const EmployeeModal = ({
 
   // ✅ Reset form when modal opens (important fix)
   useEffect(() => {
-    if (open && !employee) {
+    if (open) {
+      const nextFormData = getEmployeeFormData(employee);
       setFormData({
-        name: "",
-        email: "",
-        department: "",
-        dob: "",
-        role: "USER", // ✅ default
-        password: "",
+        ...nextFormData,
+        role: nextFormData.role || "USER",
       });
     }
   }, [open, employee, setFormData]);
@@ -313,8 +310,10 @@ export const EmployeeModal = ({
       }
 
       onOpenChange(false);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Something went wrong ❌");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Something went wrong while saving the employee";
+      toast.error(message);
     }
 
   };
@@ -324,14 +323,17 @@ export const EmployeeModal = ({
   // (!employee || employee?.isPasswordSet !== true);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card max-w-md  border border-transparent shadow-xl">
+      <DialogContent 
+        className="bg-card max-w-md shadow-xl [&>button]:!border-0 [&>button]:!bg-transparent [&>button]:focus:outline-none [&>button]:focus:ring-0"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="text-[#CE1B22]">
             {employee ? "Edit Employee" : "Add New Employee"}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" >
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2 space-y-2">
               <Label htmlFor="name">Full Name</Label>
@@ -340,6 +342,7 @@ export const EmployeeModal = ({
                 value={formData.name ?? ""}
                 onChange={(e) => handleChange("name", e.target.value)}
                 // placeholder="John Doe"
+                autoFocus={false}
                 required
               />
             </div>
@@ -462,6 +465,7 @@ export const EmployeeModal = ({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              className="text-red-700 border-red-700 hover:text-red-800 hover:border-red-800 hover:bg-red-50"
             >
               Cancel
             </Button>

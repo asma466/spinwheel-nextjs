@@ -508,14 +508,16 @@ export default function Employees() {
               setSelectedEmployee(emp);
               setIsModalOpen(true);
             }}
-          >
-            <Edit2 className="w-4 h-4" />
-          </Button>
+             className="text-[#CE1B22] hover:text-[#CE1B22] hover:bg-red-100"
+           >
+             <Edit2 className="w-4 h-4" />
+           </Button>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setDeleteEmployee(emp)}
+           <Button
+             variant="ghost"
+             size="sm"
+             onClick={() => setDeleteEmployee(emp)}
+             className="text-[#CE1B22] hover:text-[#CE1B22] hover:bg-red-100"
           >
             <Trash2 className="w-4 h-4" />
           </Button>

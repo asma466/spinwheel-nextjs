@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 
 
 
-const page = () => {
+const LoginPage = () => {
    const { data: session } = useSession();
   const router = useRouter();
 
@@ -21,4 +21,4 @@ const page = () => {
   )
 }
 
-export default page
+export default LoginPage

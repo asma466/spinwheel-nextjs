@@ -1,6 +1,7 @@
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
+import type { RowDataPacket } from 'mysql2';
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
@@ -31,7 +32,13 @@ export async function findEmployeeByEmail(email: string) {
       'SELECT id, email, password_hash, name, department FROM employees WHERE email = ?',
       [email]
     );
-    const employees = rows as any[];
+    const employees = rows as (RowDataPacket & {
+      id: number;
+      email: string;
+      password_hash: string;
+      name: string;
+      department: string | null;
+    })[];
     return employees[0] || null;
   } finally {
     connection.release();
@@ -65,7 +72,12 @@ export async function getSessionEmployee(sessionId: string) {
        WHERE s.id = ? AND s.expires_at > NOW()`,
       [sessionId]
     );
-    const sessions = rows as any[];
+    const sessions = rows as (RowDataPacket & {
+      id: number;
+      email: string;
+      name: string;
+      department: string | null;
+    })[];
     return sessions[0] || null;
   } finally {
     connection.release();
