@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { assignGiftToUser } from "@/lib/gift";
+import { ActivityAction, ActivityModule } from "@prisma/client";
+import { logActivity } from "@/lib/logger";
 
 export const runtime = "nodejs";
 export async function POST(req: Request) {
@@ -68,12 +70,39 @@ export async function GET(req: Request) {
     }
 
     // 🎁 Assign gift
-    const gift = await assignGiftToUser(recordId);
+    // const gift = await assignGiftToUser(recordId);
 
-    return Response.json({
-      success: true,
-      gift: gift.name,
-    });
+    // return Response.json({
+    //   success: true,
+    //   gift: gift.name,
+    // });
+
+    // 🎁 Assign gift
+const gift = await assignGiftToUser(recordId);
+
+const employee = await prisma.employee.findUnique({
+  where: {
+    id: record.employeeId,
+  },
+});
+
+if (employee) {
+  await logActivity({
+    userId: employee.id.toString(),
+    userName: employee.name,
+    userEmail: employee.email,
+
+    action: ActivityAction.ASSIGN,
+    module: ActivityModule.BIRTHDAYS,
+
+    description: `Assigned gift "${gift.name}" to ${employee.name}.`,
+  });
+}
+
+return Response.json({
+  success: true,
+  gift: gift.name,
+});
 
   } catch (error) {
     console.error("Spin Error:", error);

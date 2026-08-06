@@ -407,9 +407,9 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, type ChangeEvent } from "react";
 import { format } from "date-fns";
-import { Edit2, Trash2, Users, UserRoundPlus } from "lucide-react";
+import { Edit2, Trash2, Users, UserRoundPlus, Upload, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardLayout } from "@/src/component/Layout/DashboardLayout";
 import { PageHeader } from "@/src/component/common/PageHeader";
@@ -421,6 +421,7 @@ import { Employee } from "@/src/types";
 import {
   useEmployees,
   useDeleteEmployee,
+  useCreateEmployee,
 } from "@/src/hooks/useEmployeeAPI";
 import { useDebounce } from "@/src/hooks/useDebounce";
 
@@ -441,14 +442,142 @@ export default function Employees() {
 
   const { data, isLoading } = useEmployees(debouncedSearch, page);
   const deleteMutation = useDeleteEmployee();
+  const createMutation = useCreateEmployee();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const employees = data?.data ?? [];
+  const employees: Employee[] = data?.data ?? [];
   const meta = data?.meta;
 
   const handleDelete = async () => {
     if (!deleteEmployee) return;
     await deleteMutation.mutateAsync(deleteEmployee.id);
     setDeleteEmployee(null);
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImportFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const text = await file.text();
+    const lines = text
+      .split(/\r?\n/)
+      .filter(Boolean);
+
+    if (lines.length < 2) {
+      window.alert("CSV file must include a header row and at least one employee record.");
+      event.target.value = "";
+      return;
+    }
+
+    // Parse CSV header more robustly
+    const headerLine = lines[0];
+    const header = headerLine
+      .split(",")
+      .map((col) => col.trim().toLowerCase());
+
+    console.log("Found headers:", header);
+
+    const requiredHeaders = ["name", "email", "department", "dob"];
+    const missingHeaders = requiredHeaders.filter(
+      (required) => !header.includes(required),
+    );
+
+    if (missingHeaders.length) {
+      window.alert(
+        `CSV is missing required columns.\n\nFound: ${header.join(", ")}\n\nRequired: ${requiredHeaders.join(", ")}\n\nMissing: ${missingHeaders.join(", ")}`,
+      );
+      event.target.value = "";
+      return;
+    }
+
+    const importedRows = lines.slice(1).map((line) => {
+      const values = line.split(",").map((value) => value.trim());
+      return header.reduce<Record<string, string>>((row, key, index) => {
+        row[key] = values[index] ?? "";
+        return row;
+      }, {});
+    });
+
+    const createdEmployees = [];
+    const failedRows: string[] = [];
+
+    for (const row of importedRows) {
+      const name = row.name?.trim();
+      const email = row.email?.trim();
+      const department = row.department?.trim();
+      const dob = row.dob?.trim();
+      const role = row.role?.trim().toUpperCase() || "USER";
+      const password = row.password?.trim() || undefined;
+
+      if (!name || !email || !department || !dob) {
+        failedRows.push(JSON.stringify(row));
+        continue;
+      }
+
+      const parsedDob = new Date(dob);
+      if (isNaN(parsedDob.getTime())) {
+        failedRows.push(JSON.stringify(row));
+        continue;
+      }
+
+      try {
+        await createMutation.mutateAsync({
+          name,
+          email,
+          department,
+          dob: parsedDob,
+          role,
+          password,
+        });
+        createdEmployees.push(name);
+      } catch (error) {
+        failedRows.push(name || JSON.stringify(row));
+      }
+    }
+
+    const summary = [];
+    if (createdEmployees.length) {
+      summary.push(`${createdEmployees.length} employee(s) imported successfully.`);
+    }
+    if (failedRows.length) {
+      summary.push(`${failedRows.length} row(s) failed to import.`);
+    }
+
+    if (summary.length) {
+      window.alert(summary.join(" "));
+    }
+
+    event.target.value = "";
+  };
+
+  const escapeCsvValue = (value: string | number | undefined | null) =>
+    `"${String(value ?? "").replace(/"/g, '""')}"`;
+
+  const handleExport = () => {
+    const headers = ["Name", "Email", "Department", "Role", "Birthday"];
+    const rows: string[][] = employees.map((emp: Employee) => [
+      escapeCsvValue(emp.name),
+      escapeCsvValue(emp.email),
+      escapeCsvValue(emp.department),
+      escapeCsvValue(emp.role),
+      escapeCsvValue(emp.dob ? format(new Date(emp.dob), "yyyy-MM-dd") : ""),
+    ]);
+
+    const csv = [headers.join(","), ...rows.map((row: string[]) => row.join(","))].join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "employees.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const columns = [
@@ -532,16 +661,34 @@ export default function Employees() {
         title="Employees"
         subtitle={`Manage your Team of ${meta?.total ?? 0} Employees`}
         actions={
-          <AppButton
-            onClick={() => {
-              setSelectedEmployee(null);
-              setIsModalOpen(true);
-            }}
-            icon={<UserRoundPlus size={20} />}
-          >
-            Add Employee
-          </AppButton>
+          <div className="flex flex-wrap gap-2">
+            <AppButton
+              onClick={() => {
+                setSelectedEmployee(null);
+                setIsModalOpen(true);
+              }}
+              icon={<UserRoundPlus size={20} />}
+            >
+              Add Employee
+            </AppButton>
+            <Button variant="outline" size="sm" onClick={handleImportClick}>
+              <Upload className="w-4 h-4" />
+              Import
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
+          </div>
         }
+      />
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".csv"
+        className="hidden"
+        onChange={handleImportFile}
       />
 
       <div className="mb-6">

@@ -1,5 +1,6 @@
 "use client"
-import { LoginForm } from '@/src/component/login/login'
+
+import { LoginForm } from '@/src/component/login';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -7,18 +8,21 @@ import { useEffect } from 'react';
 
 
 
-const LoginPage = () => {
-   const { data: session } = useSession();
+const page = () => {
+   const { data: session , status} = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (session?.user?.role === 'ADMIN') {
-      router.push('/dashboard');
+    // if (session?.user?.role === 'ADMIN') {
+    //   router.replace("/dashboard");
+    // } 
+       if (status === "authenticated" && session?.user?.role === "ADMIN") {
+      router.replace("/dashboard");
     }
-  }, [session, router]);
+  }, [session, router, status]);
   return (
     <LoginForm/>
   )
 }
 
-export default LoginPage
+export default page

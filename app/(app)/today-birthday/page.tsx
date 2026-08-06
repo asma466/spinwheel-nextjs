@@ -672,6 +672,10 @@ const columns = [
       <Button
         size="sm"
         variant={item.emailSent ? 'outline' : 'default'}
+         className={
+    item.emailSent
+      ? "hover:bg-transparent hover:text-current hover:border-current"
+      : "" }
         onClick={() =>
           sendEmailMutation.mutate(item.employee.id, {
             onSuccess: () =>

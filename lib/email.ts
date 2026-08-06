@@ -231,5 +231,6 @@ export const sendwinMail = async (
       `Error while sending Followup Email to ${recipientEmails.join(', ')} on ${new Date()}:`,
       error
     );
+     throw error; // ⭐ This is the important line
   }
 };

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { logActivity } from '@/lib/logger';
+import { ActivityAction, ActivityModule } from '@prisma/client';
 
 const PRIZES = [
   'Planter',
@@ -86,6 +88,7 @@ const PRIZES = [
 // }
 
 export const runtime = "nodejs";
+
 export async function POST(request: NextRequest) {
   try {
     const { id } = await request.json();
@@ -97,9 +100,7 @@ export async function POST(request: NextRequest) {
 
     const birthdayrecord = await prisma.birthdayrecord.findUnique({
       where: { id: recordId },
-      // include: { employee: true, giftReceived: true },
       include: { employee: true, gift: true },
-    
     });
     if (!birthdayrecord)
       return NextResponse.json({ error: 'Birthday record not found' }, { status: 404 });
@@ -124,16 +125,44 @@ export async function POST(request: NextRequest) {
     const selectedGift = availableGifts[randomIndex];
 
     // Decrement quantity
-    await prisma.gift.update({
-      where: { id: selectedGift.id },
-      data: { quantity: selectedGift.quantity - 1 },
-    });
+    // await prisma.gift.update({
+    //   where: { id: selectedGift.id },
+    //   data: { quantity: selectedGift.quantity - 1 },
+    // });
+
+    const remaining = selectedGift.quantity - 1;
+
+await prisma.gift.update({
+  where: { id: selectedGift.id },
+  data: {
+    quantity: remaining,
+    available: remaining > 0,
+  },
+});
 
     // Optionally mark spin as completed
     await prisma.birthdayrecord.update({
       where: { id: recordId },
       data: { spinCompleted: true, giftReceivedId: selectedGift.id },
     });
+
+    // await logActivity({
+    //   actorId: birthdayrecord.employee.id,
+    //   actorName: birthdayrecord.employee.name,
+    //   action: "SPIN_WHEEL_START",
+    //   details: `Employee ${birthdayrecord.employee.name} (${birthdayrecord.employee.email}) spun the wheel and won prize: ${selectedGift.name}`,
+    // });
+    await logActivity({
+  userId: birthdayrecord.employee.id.toString(),
+  userName: birthdayrecord.employee.name,
+  userEmail: birthdayrecord.employee.email,
+
+  action: ActivityAction.SPIN,
+  module: ActivityModule.BIRTHDAYS,
+
+  description: `${birthdayrecord.employee.name} spun the birthday wheel and won "${selectedGift.name}".`,
+});
+
 
     return NextResponse.json({
       id: birthdayrecord.id,

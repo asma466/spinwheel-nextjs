@@ -17,6 +17,8 @@ export const useSendBirthdayEmail = () => {
   return useMutation({
     mutationFn: async (employeeId: number) => {
       const res = await axios.post('/api/birthday_record', { employeeId });
+            console.log('Employees API response:', res.data); // <-- log here
+
       return res.data;
     },
     onSuccess: () => {

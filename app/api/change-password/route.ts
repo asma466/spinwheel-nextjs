@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { authOptions } from "../auth/[...nextauth]/options";
+import { logActivity } from "@/lib/logger";
+import { ActivityAction, ActivityModule } from "@prisma/client";
 export const runtime = "nodejs";
 export async function POST(req: Request) {
   try {
@@ -57,6 +59,22 @@ export async function POST(req: Request) {
     await prisma.employee.update({
       where: { id: Number(session.user.id) },
       data: { password: hashedPassword },
+    });
+
+    // await logActivity({
+    //   actorId: Number(session.user.id),
+    //   actorName: session.user.name || session.user.email,
+    //   action: "CHANGE_PASSWORD",
+    //   details: `Admin changed password successfully`,
+    // });
+     // ✅ Activity Log
+    await logActivity({
+      userId: session.user.id?.toString(),
+      userName: session.user.name ?? "Unknown User",
+      userEmail: session.user.email ?? "Unknown",
+      action: ActivityAction.UPDATE,
+      module: ActivityModule.EMPLOYEES,
+      description: "Changed account password",
     });
 
     return NextResponse.json({

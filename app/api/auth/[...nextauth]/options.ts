@@ -1,7 +1,10 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import  { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { ActivityAction, ActivityModule } from "@prisma/client";
+import { logActivity } from "@/lib/logger";
+
 
 export const runtime = "nodejs";
 
@@ -21,6 +24,7 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email.toLowerCase().trim() },
         });
 
+
         if (!user) throw new Error("User not found");
 
         const role = (user.role ?? "USER").toUpperCase();
@@ -35,9 +39,20 @@ export const authOptions: NextAuthOptions = {
         }
 
         // User login can skip password (optional)
-        if (role === "USER" && credentials?.password) {
-          throw new Error("Password not required for regular users");
-        }
+        // if (role === "USER" && credentials?.password) {
+        //   throw new Error("Password not required for regular users");
+        // }
+
+     
+
+//         await logActivity({
+//   userId: user.id.toString(),
+//   userName: user.name ?? "Unknown",
+//   userEmail: user.email,
+//   action: ActivityAction.LOGIN,
+//   module: ActivityModule.AUTH,
+//   description: "User logged in successfully.",
+// });
 
         return {
           id: user.id.toString(),

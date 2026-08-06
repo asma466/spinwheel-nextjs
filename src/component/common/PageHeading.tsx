@@ -1,9 +1,4 @@
-interface PageHeadingProps {
-  title: string;
-  subtitle?: string;
-}
-
-export const PageHeading = ({ title, subtitle }: PageHeadingProps) => {
+export const PageHeading = ({ title, subtitle }: any) => {
   return (
     <div>
       <h1 className="heading-xl">{title}</h1>

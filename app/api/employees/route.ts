@@ -311,11 +311,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { getAdminSession } from "@/lib/getAdminSession";
+import { logActivity } from "@/lib/logger";
+import { ActivityAction, ActivityModule } from "@prisma/client";
 // const prisma = new PrismaClient();
 export const runtime = "nodejs";
 /* =======================================================
    POST - Create Employee
-======================================================= */
+/* ======================================================= */
 export async function POST(req: NextRequest) {
    // In App Router, getServerSession takes { req, res } from NextResponse
   // const session = await getServerSession(authOptions); // only req
@@ -323,7 +325,7 @@ export async function POST(req: NextRequest) {
   //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   // }
   try {
-     const session = await getAdminSession(req);
+     const session = await getAdminSession();
     if (!session) {
       return NextResponse.json(
         { message: "Unauthorized" },
@@ -423,6 +425,15 @@ export async function POST(req: NextRequest) {
       },
     });
 
+   await logActivity({
+  userId: session.user.id?.toString(),
+  userName: session.user.name ?? "Unknown User",
+  userEmail: session.user.email ?? "Unknown@wheelspin.com",
+  action: ActivityAction.CREATE,
+  module: ActivityModule.EMPLOYEES,
+  description: `Created employee ${employee.name}`,
+});
+
     return NextResponse.json(
       { message: "Employee created successfully", employee },
       { status: 201 }
@@ -441,7 +452,7 @@ export async function POST(req: NextRequest) {
 ======================================================= */
 export async function GET(req: NextRequest) {
   try {
-      const session = await getAdminSession(req);
+      const session = await getAdminSession();
     if (!session) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }

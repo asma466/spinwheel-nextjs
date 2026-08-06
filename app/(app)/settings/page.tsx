@@ -2,12 +2,13 @@
 
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { AppButton } from "@/src/component/common/AppButton";
 import { toast } from "sonner";
-import { Lock } from "lucide-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { DashboardLayout } from "@/src/component/Layout/DashboardLayout";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { PageHeader } from "@/src/component/common/PageHeader";
 import { PasswordField } from "@/src/component/common/Password";
 
@@ -38,11 +39,9 @@ try {
   // Sign out after update
   signOut({ callbackUrl: "/login" });
 
-  } catch (error: unknown) {
-    const axiosError = error as AxiosError<{ error?: string }>;
-
-    if (axiosError.response?.data?.error) {
-      toast.error(axiosError.response.data.error);
+  } catch (error: any) {
+    if (error.response?.data?.error) {
+      toast.error(error.response.data.error);
     } else {
       toast.error("Something went wrong");
     }

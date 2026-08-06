@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import type { RowDataPacket } from 'mysql2';
 import pool from '@/lib/db';
 
-interface SessionUserRow extends RowDataPacket {
-  id: number;
-  email: string;
-  full_name: string;
-  role: string;
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,7 +19,7 @@ export async function GET(request: NextRequest) {
       [token]
     );
 
-    const sessions = Array.isArray(rows) ? (rows as SessionUserRow[]) : [];
+    const sessions = Array.isArray(rows) ? (rows as any[]) : [];
 
     if (sessions.length === 0) {
       return NextResponse.json(

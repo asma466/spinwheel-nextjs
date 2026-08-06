@@ -1,50 +1,11 @@
-// import { generateSpinToken } from "@/lib/spinToken";
-// import { prisma } from "@/lib/prisma";
-// import { sendBirthdayGreetingEmail } from "@/lib/email";
 
 import { sendBirthdayGreetingEmail } from "@/lib/email";
 import { generateSpinToken } from "@/lib/spinToken";
 import { prisma } from "@/lib/prisma";
-// export async function POST(req: Request) {
-
-//   const { employeeId } = await req.json();
-
-//   const employee = await prisma.employee.findUnique({
-//     where: { id: employeeId }
-//   });
-
-//   if (!employee) {
-//     return Response.json({ error: "Employee not found" });
-//   }
-
-//   const existing = await prisma.birthdayRecord.findFirst({
-//     where: {
-//       employeeId: employeeId,
-//       emailSent: true
-//     }
-//   });
-
-//   if (existing) {
-//     return Response.json({ message: "Email already sent" });
-//   }
-
-//   const token = generateSpinToken();
-
-//   const record = await prisma.birthdayRecord.create({
-//     data: {
-//       employeeId: employeeId,
-//       spinToken: token,
-//       emailSent: true
-//     }
-//   });
-
-//   const link = `${process.env.APP_URL}/birthday-spin?token=${token}`;
-
-//   await sendBirthdayGreetingEmail(employee.email, employee.name, link);
-
-//   return Response.json({ success: true });
-// }
-
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { logActivity } from "@/lib/logger";
+import { ActivityAction, ActivityModule } from "@prisma/client";
 
 export async function POST(req: Request) {
   const { employeeId } = await req.json();
@@ -92,6 +53,17 @@ export async function POST(req: Request) {
   // send email using the record.id
   const link = `${process.env.APP_URL}/birthday-spin?x=${birthdayRecord.id}`;
   await sendBirthdayGreetingEmail(employee.email, employee.name, birthdayRecord.id);
+
+  const session = await getServerSession(authOptions);
+ await logActivity({
+    userId: session?.user?.id ? String(session.user.id) : null,
+    userName: session?.user?.name || session?.user?.email || "System",
+    userEmail: session?.user?.email || "system@wheelspin.com",
+    action: ActivityAction.EMAIL,
+    module: ActivityModule.BIRTHDAYS,
+    description: `Manually triggered birthday greeting email to ${employee.name} (${employee.email})`,
+  });
+
 
   return Response.json({ success: true, recordId: birthdayRecord.id });
 }

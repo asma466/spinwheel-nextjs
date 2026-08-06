@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { sendBirthdayGreetingEmail } from "@/lib/email";
+import { logActivity } from "@/lib/logger";
+import { ActivityAction, ActivityModule } from "@prisma/client";
+
 export const runtime = "nodejs";
 export async function GET() {
   try {
@@ -70,8 +73,43 @@ export async function GET() {
 
         console.log(`✅ Email sent to ${emp.email}`);
 
+        // await logActivity({
+        //   action: "SEND_BIRTHDAY_EMAIL_SUCCESS",
+        //   details: `Successfully sent birthday greeting email to ${emp.name} (${emp.email}) (Record ID: ${record.id})`,
+        // });
+
+        await logActivity({
+  userId: null,
+  userName: "System",
+  userEmail: "system@wheelspin.com",
+
+  action: ActivityAction.EMAIL,
+  module: ActivityModule.BIRTHDAYS,
+
+  description: `Birthday email sent successfully to ${emp.name} (${emp.email})`,
+});
+
+
       } catch (err) {
         console.error(`❌ Failed to send email to ${emp.email}`, err);
+
+        // await logActivity({
+        //   action: "SEND_BIRTHDAY_EMAIL_FAILURE",
+        //   details: `Failed to send birthday greeting email to ${emp.name} (${emp.email}) (Record ID: ${record.id}). Error: ${err instanceof Error ? err.message : String(err)}`,
+        // });
+
+        await logActivity({
+  userId: null,
+  userName: "System",
+  userEmail: "system@wheelspin.com",
+
+  action: ActivityAction.EMAIL,
+  module: ActivityModule.BIRTHDAYS,
+
+  description: `Failed to send birthday email to ${emp.name} (${emp.email}). Error: ${
+    err instanceof Error ? err.message : String(err)
+  }`,
+});
 
         // ❗ emailSent stays false → can retry later
       }

@@ -7,7 +7,8 @@ import {
   ChevronLeft,
   ChevronRight,
   PartyPopper,
-  Settings
+  Settings,
+  ClipboardList
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -24,6 +25,7 @@ const navItems = [
   { href: '/employees', icon: Users, label: 'Employees' },
   { href: '/today-birthday', icon: Cake, label: 'Birthdays' },
   { href: '/gifts', icon: Gift, label: 'Gifts' },
+  { href: '/logs', icon: ClipboardList, label: 'Logs' },
   { href: '/settings', icon: Settings, label: 'Settings' },
 
 ];

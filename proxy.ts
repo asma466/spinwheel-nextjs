@@ -16,6 +16,10 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
+    // Prevent logged-in users from visiting login
+  if (pathname === "/login" && token) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
   // 3. Define protected routes
   const protectedRoutes = [
     "/dashboard",
@@ -46,6 +50,7 @@ export async function proxy(req: NextRequest) {
 export const config = {
   matcher: [
     "/",
+    //  "/login",
     "/dashboard/:path*",
     "/employees/:path*",
     "/gifts/:path*",

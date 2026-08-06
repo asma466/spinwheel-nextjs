@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../../auth/[...nextauth]/options';
+import { logActivity } from '@/lib/logger';
+import { ActivityAction, ActivityModule } from "@prisma/client";
 
 // GET single gift by ID
 export async function GET(
@@ -73,6 +77,18 @@ export async function PUT(
       },
     });
 
+const session = await getServerSession(authOptions);
+
+await logActivity({
+  userId: session?.user?.id?.toString(),
+  userName: session?.user?.name ?? "System",
+  userEmail: session?.user?.email ?? "system@wheelspin.com",
+
+  action: ActivityAction.UPDATE,
+  module: ActivityModule.GIFTS,
+
+  description: `Updated gift "${updatedGift.name}" (Quantity: ${updatedGift.quantity}, Available: ${updatedGift.available})`,
+});
     return NextResponse.json({
       success: true,
       message: 'Gift updated successfully',
@@ -110,6 +126,26 @@ export async function DELETE(
       where: { id: parseInt(id) },
     });
 
+    // const session = await getServerSession(authOptions);
+    // await logActivity({
+    //   actorId: session?.user?.id ? Number(session.user.id) : null,
+    //   actorName: session?.user?.name || session?.user?.email || "System",
+    //   action: "DELETE_GIFT",
+    //   details: `Deleted gift ID ${id}: ${gift.name}`,
+    // });
+
+    const session = await getServerSession(authOptions);
+
+await logActivity({
+  userId: session?.user?.id?.toString(),
+  userName: session?.user?.name ?? "System",
+  userEmail: session?.user?.email ?? "system@wheelspin.com",
+
+  action: ActivityAction.DELETE,
+  module: ActivityModule.GIFTS,
+
+  description: `Deleted gift "${gift.name}"`,
+});
     return NextResponse.json({
       success: true,
       message: 'Gift deleted successfully',

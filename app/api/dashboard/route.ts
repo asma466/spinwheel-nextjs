@@ -1,129 +1,8 @@
 
-// import { NextResponse } from "next/server";
-// import { prisma } from "@/lib/prisma";
-// import { Employee } from "@/src/types";
-
-
-// type EmployeeWithDob = {
-//   id: number;
-//   name: string;
-//   department: string;
-//   dob: Date | null;
-// };
-// export async function GET() {
-//   try {
-//     const today = new Date();
-
-//     const [
-//       totalEmployees,
-//       availableGifts,
-//       totalGifts,
-//       employeesWithDob,
-//       pendingEmails,
-//       recentGiftActivity,
-//     ] = await Promise.all([
-//       prisma.employee.count(),
-
-//       prisma.gift.count({
-//         where: { available: true },
-//       }),
-
-//       prisma.gift.count(),
-
-//       prisma.employee.findMany({
-//         // where: {
-//         //   dob: { not: null },
-//         // },
-//         select: {
-//           id: true,
-//           name: true,
-//           department: true,
-//           dob: true,
-//         },
-//       }),
-
-//       prisma.birthdayrecord.count({
-//         where: {
-//           emailSent: false,
-//           year: today.getUTCFullYear(),
-//         },
-//       }),
-
-//       prisma.birthdayrecord.findMany({
-//         where: {
-//           giftReceived: { isNot: null },
-//         },
-//         include: {
-//           employee: true,
-//            giftReceived: {
-//       select: {
-//         id: true,
-//         name: true,
-//         quantity: true,
-//         available: true,
-       
-//       },
-//     }
-//         },
-//         orderBy: {
-//           giftReceivedAt: "desc",
-//         },
-//         take: 5,
-//       }),
-//     ]);
-
-//     // ✅ ✅ ADD TYPE RIGHT HERE 👇
-// // type EmployeeWithDob = {
-// //   id: number;
-// //   name: string;
-// //   department: string;
-// //   dob: Date | null;
-// // };
-
-//     // 🔥 Correct UTC-based birthday filtering
-//     const todayBirthdays  = employeesWithDob.filter((emp: Employee) => {
-      
-//        if (!emp.dob) return false;
-//        const dob = new Date(emp.dob);
-
-//       return (
-//         dob.getUTCMonth() === today.getUTCMonth() &&
-//         dob.getUTCDate() === today.getUTCDate()
-//       );
-//     });
-
-//     const todayBirthdayIds = todayBirthdays.map((emp) => emp.id);
-
-//     const birthdayRecords = await prisma.birthdayrecord.findMany({
-//       where: {
-//         employeeId: { in: todayBirthdayIds },
-//         year: today.getUTCFullYear(),
-//       },
-//     });
-
-//     return NextResponse.json({
-//       totalEmployees,
-//       availableGifts,
-//       totalGifts,
-//       todayBirthdays,
-//       pendingEmails,
-//       recentGiftActivity,
-//       birthdayRecords,
-//     });
-//   } catch (error) {
-//     console.error("Dashboard Error:", error);
-//     return NextResponse.json(
-//       { message: "Failed to fetch dashboard data" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-
-
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getAdminSession } from "@/lib/getAdminSession";
 
 type EmployeeWithDob = {
   id: number;
@@ -133,6 +12,14 @@ type EmployeeWithDob = {
 };
 export const runtime = "nodejs";
 export async function GET() {
+   const session = await getAdminSession();
+
+  if (!session) {
+    return NextResponse.json(
+      { message: "Unauthorized" },
+      { status: 401 }
+    );
+  }
   try {
     const today = new Date();
 

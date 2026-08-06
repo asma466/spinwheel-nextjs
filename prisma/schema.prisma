@@ -23,9 +23,12 @@ model birthdayrecord {
   employee       employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade, map: "BirthdayRecord_employeeId_fkey")
   gift           gift?     @relation(fields: [giftReceivedId], references: [id], map: "BirthdayRecord_giftReceivedId_fkey")
 
+ 
+
   @@unique([employeeId, year], map: "BirthdayRecord_employeeId_year_key")
   @@index([giftReceivedId], map: "BirthdayRecord_giftReceivedId_fkey")
 }
+
 
 model employee {
   id                    Int              @id @default(autoincrement())
@@ -59,6 +62,64 @@ model user {
   role     String @default("HR")
 }
 
+// model ActivityLog {
+//   id            Int      @id @default(autoincrement())
+
+//   userId        String?
+//   userName      String
+//   userEmail     String
+
+//   action        String    // CREATE, UPDATE, DELETE, LOGIN...
+//   module        String    // EMPLOYEES, GIFTS, SETTINGS...
+
+//   description   String    @db.Text
+
+//   createdAt     DateTime  @default(now())
+
+//   @@index([module])
+//   @@index([action])
+//   @@index([createdAt])
+// }
+
+model ActivityLog {
+  id          Int      @id @default(autoincrement())
+
+  userId      String?
+  userName    String
+  userEmail   String
+
+  action      ActivityAction
+  module      ActivityModule
+
+  description String   @db.Text
+  changes     Json?                      // Stores field changes as JSON: {fieldName: {before: value, after: value}}
+
+  createdAt   DateTime @default(now())
+
+  @@index([module])
+  @@index([action])
+  @@index([createdAt])
+}
+
+enum ActivityAction {
+  CREATE
+  UPDATE
+  DELETE
+  ASSIGN
+  RECEIVED
+  LOGIN
+  LOGOUT
+  EMAIL
+  SPIN
+}
+
+enum ActivityModule {
+  EMPLOYEES
+  GIFTS
+  BIRTHDAYS
+  SETTINGS
+  AUTH
+}
 enum employee_role {
   ADMIN
   USER

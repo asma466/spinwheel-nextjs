@@ -136,6 +136,8 @@
 import { generateSpinToken } from "@/lib/spinToken";
 import { prisma } from "@/lib/prisma";
 import { sendBirthdayGreetingEmail } from "@/lib/email";
+import { logActivity } from "@/lib/logger";
+import { ActivityAction, ActivityModule } from "@prisma/client";
 export const runtime = "nodejs";
 export async function GET(req: Request) {
   try {
@@ -209,11 +211,50 @@ export async function GET(req: Request) {
         // 📧 Send email
         await sendBirthdayGreetingEmail(emp.name, emp.email, record.id);
 
+// await logActivity({
+//   userId: null,
+//   userName: "System",
+//   userEmail: "system@wheelspin.com",
+//   action: ActivityAction.EMAIL,
+//   module: ActivityModule.BIRTHDAYS,
+//   description: `Birthday email sent to ${emp.name} (${emp.email})`,
+// });
+ 
+console.log("📍 BEFORE sendBirthdayGreetingEmail");
+
+await sendBirthdayGreetingEmail(emp.name, emp.email, record.id);
+
+console.log("📍 AFTER sendBirthdayGreetingEmail");
+
+await logActivity({
+  userId: null,
+  userName: "System",
+  userEmail: "system@wheelspin.com",
+  action: ActivityAction.EMAIL,
+  module: ActivityModule.BIRTHDAYS,
+  description: `Birthday email sent to ${emp.name} (${emp.email})`,
+});
+
+console.log("📍 AFTER logActivity");
+
+console.log(`✅ Sent birthday email to ${emp.name} (${emp.email})`);
+
+
         console.log(`✅ Sent birthday email to ${emp.name} (${emp.email})`);
         emailsSentCount++;
 
       } catch (err) {
         console.error(`❌ Failed for ${emp.name}:`, err);
+        await logActivity({
+    userId: null,
+    userName: "System",
+    userEmail: "system@wheelspin.com",
+    action: ActivityAction.EMAIL,
+    module: ActivityModule.BIRTHDAYS,
+    description: `Failed to send birthday email to ${emp.name} (${emp.email}). Error: ${
+      err instanceof Error ? err.message : String(err)
+    }`,
+  });
         errors.push({ employeeId: emp.id, error: String(err) });
       }
     }

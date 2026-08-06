@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth/[...nextauth]/options';
+import { logActivity } from '@/lib/logger';
+import { ActivityAction, ActivityModule } from '@prisma/client';
 
 // GET all gifts
 export const runtime = "nodejs";
@@ -46,6 +50,18 @@ export async function POST(request: NextRequest) {
       },
     });
 
+ const session = await getServerSession(authOptions);
+
+await logActivity({
+  userId: session?.user?.id?.toString(),
+  userName: session?.user?.name ?? "System",
+  userEmail: session?.user?.email ?? "system@wheelspin.com",
+
+  action: ActivityAction.CREATE,
+  module: ActivityModule.GIFTS,
+
+  description: `Created gift "${gift.name}"`,
+});
     return NextResponse.json(
       {
         success: true,

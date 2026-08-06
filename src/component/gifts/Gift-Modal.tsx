@@ -72,7 +72,7 @@ export function GiftModal({ open, onOpenChange, gift, onSave }: GiftModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
-      <DialogContent className="bg-card max-w-md [&>button]:!border-0 [&>button]:!bg-transparent [&>button]:focus:outline-none [&>button]:focus:ring-0" onOpenAutoFocus={(e) => e.preventDefault()}>
+      <DialogContent className="bg-card max-w-md">
         <DialogHeader>
           <DialogTitle>
             {gift ? 'Edit Gift' : 'Add New Gift'}
@@ -84,7 +84,6 @@ export function GiftModal({ open, onOpenChange, gift, onSave }: GiftModalProps) 
             <Label htmlFor="name">Gift Name</Label>
             <Input
               id="name"
-              autoFocus={false}
               value={formData.name}
               onChange={(e) => handleChange('name', e.target.value)}
               placeholder="Enter Gift Name"
