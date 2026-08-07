@@ -7,6 +7,7 @@ import "./globals.css";
 // import { Toaster } from "sonner";
 // import { SessionProvider } from "next-auth/react";
 import ClientProviders from "@/src/component/provider/QueryProvider";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 // import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -74,6 +75,7 @@ export default function RootLayout({
         <ClientProviders>
           {children}
         </ClientProviders>
+        <SpeedInsights />
       </body>
     </html>
   );
